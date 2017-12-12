@@ -61,10 +61,22 @@ class Devil(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.image.load("devil.png")
-        self.rect = pygame.rect.Rect(
-            (random.randint(0, WIDTH), random.randint(0, HEIGHT)),
-            self.image.get_size()
-        )
+
+        side = random.randint(0, 3)
+        if side == 0:  # Top
+            x = random.randint(0, WIDTH)
+            y = 0
+        elif side == 1:  # Right
+            x = WIDTH
+            y = random.randint(0, HEIGHT)
+        elif side == 2:  # Bottom
+            x = random.randint(0, WIDTH)
+            y = HEIGHT
+        elif side == 3:  # Left
+            x = 0
+            y = random.randint(0, HEIGHT)
+
+        self.rect = pygame.rect.Rect((x, y), self.image.get_size())
 
         devilgroup.add(self)
 
@@ -84,23 +96,6 @@ class StarField(pygame.Surface):
                 y += 1
             x += 1
 
-# def spawndevil(devils):
-#     side = random.randint(0, 3)
-#
-#     if side == 0:  # Top
-#         x = random.randint(0, WIDTH)
-#         y = 0
-#     elif side == 1:  # Right
-#         x = WIDTH
-#         y = random.randint(0, HEIGHT)
-#     elif side == 2:  # Bottom
-#         x = random.randint(0, WIDTH)
-#         y = HEIGHT
-#     elif side == 3:  # Left
-#         x = 0
-#         y = random.randint(0, HEIGHT)
-#
-#     devils.append((x, y))
 
 def winscreen():
     mainsurf.fill(BACKGROUND_COLOR)
