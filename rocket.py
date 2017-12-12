@@ -90,14 +90,14 @@ class StarField(pygame.sprite.Sprite):
         self.image = pygame.Surface((WIDTH, HEIGHT))
         self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
 
-        x = 0
-        while x < WIDTH:
-            y = 0
-            while y < HEIGHT:
+        y = 0
+        while y < HEIGHT:
+            x = 0
+            while x < WIDTH:
                 if random.randint(0, 100) == 0:
-                    self.image.set_at((x, y), randomcolor())
-                y += 1
-            x += 1
+                    self.image.set_at((x, y), STAR_COLOR)
+                x += 1
+            y += 1
 
     def draw(self):
         mainsurf.blit(self.image, self.rect)
