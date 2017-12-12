@@ -32,11 +32,9 @@ mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
 rocketimage = pygame.image.load('rocket.png')
 cookieimage = pygame.image.load('cookie.png')
-devilimage = pygame.image.load('devil.png')
 
 rocketwidth, rocketheight = rocketimage.get_size()
 cookiewidth, cookieheight = cookieimage.get_size()
-devilwidth, devilheight = devilimage.get_size()
 
 rocketx = WIDTH / 2
 rockety = HEIGHT / 2
@@ -62,15 +60,16 @@ class Devil(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
+        self.image = pygame.image.load("devil.png")
         self.rect = pygame.rect.Rect(
             (random.randint(0, WIDTH), random.randint(0, HEIGHT)),
-            (devilwidth, devilheight)
+            self.image.get_size()
         )
 
         devilgroup.add(self)
 
     def draw(self):
-        mainsurf.blit(devilimage, self)
+        mainsurf.blit(self.image, self)
 
 class StarField(pygame.Surface):
     def __init__(self):
