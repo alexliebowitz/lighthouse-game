@@ -45,6 +45,12 @@ gamelost = False
 
 devilgroup = pygame.sprite.Group()
 
+def randomshade():
+    return random.randint(0, 255)
+
+def randomcolor():
+    return (randomshade(), randomshade(), randomshade())
+
 class Rocket(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -104,7 +110,7 @@ class StarField(pygame.sprite.Sprite):
             x = 0
             while x < WIDTH:
                 if random.randint(0, 100) == 0:
-                    self.image.set_at((x, y), STAR_COLOR)
+                    self.image.set_at((x, y), randomcolor())
                 x += 1
             y += 1
 
