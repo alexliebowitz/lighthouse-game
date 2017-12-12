@@ -30,14 +30,10 @@ mainfont = pygame.font.SysFont('Helvetica', 25)
  
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
-rocketimage = pygame.image.load('rocket.png')
 cookieimage = pygame.image.load('cookie.png')
 
-rocketwidth, rocketheight = rocketimage.get_size()
 cookiewidth, cookieheight = cookieimage.get_size()
 
-rocketx = WIDTH / 2
-rockety = HEIGHT / 2
 rocketspeed = 1
 
 boostmode = False
@@ -61,7 +57,7 @@ class Rocket(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.image.load("rocket.png")
-        self.rect = pygame.rect.Rect((x, y), self.image.get_size())
+        self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
 
     def draw(self):
         mainsurf.blit(self.image, self.rect)
@@ -189,6 +185,8 @@ def showboostbar(boostleft):
 
 starfield = StarField()
 
+rocket = Rocket()
+
 # Create first devil
 devils.append(Devil())
 while True:
@@ -258,29 +256,29 @@ while True:
     ### Update rocket position using the speed we just calculated
 
     if keyspressed[K_UP]:
-        rockety -= rocketspeed
+        rocket.rect.y -= rocketspeed
  
     if keyspressed[K_DOWN]:
-        rockety += rocketspeed
+        rocket.rect.y += rocketspeed
  
     if keyspressed[K_LEFT]:
-        rocketx -= rocketspeed
+        rocket.rect.x -= rocketspeed
  
     if keyspressed[K_RIGHT]:
-        rocketx += rocketspeed
+        rocket.rect.x += rocketspeed
 
     # If the rocket is now past the edge in any direction, move it back to the edge.
-    if rocketx < 0:
-        rocketx = 0
+    if rocket.rect.x < 0:
+        rocket.rect.x = 0
 
-    if rocketx > WIDTH - rocketwidth:
-        rocketx = WIDTH - rocketwidth
+    if rocket.rect.x > WIDTH - rocket.rect.width:
+        rocket.rect.x = WIDTH - rocket.rect.width
 
-    if rockety < 0:
-        rockety = 0
+    if rocket.rect.y < 0:
+        rocket.rect.y = 0
 
-    if rockety > HEIGHT - rocketwidth:
-        rockety = HEIGHT - rocketwidth
+    if rocket.rect.y > HEIGHT - rocket.rect.height:
+        rocket.rect.y = HEIGHT - rocket.rect.height
  
     ### Update devil position
 
@@ -293,16 +291,16 @@ while True:
         oldy = devil.rect.y
 
         # Calculate the *new* x and y position for this devil
-        if devil.rect.x > rocketx:
+        if devil.rect.x > rocket.rect.x:
             devil.rect.x -= DEVILSPEED
     
-        if devil.rect.x < rocketx:
+        if devil.rect.x < rocket.rect.x:
             devil.rect.x += DEVILSPEED
      
-        if devil.rect.y > rockety:
+        if devil.rect.y > rocket.rect.y:
             devil.rect.y -= DEVILSPEED
      
-        if devil.rect.y < rockety:
+        if devil.rect.y < rocket.rect.y:
             devil.rect.y += DEVILSPEED
 
         devilgroup.remove(devil)
@@ -321,7 +319,6 @@ while True:
 
     # Create Pygame rectangle objects for the rocket and cookie. Rectangles are not directly displayed
     # to the screen; they're just used for checking for collisions and other calculations.
-    rocket_rect = pygame.Rect((rocketx, rockety), (rocketwidth, rocketheight))
     cookie_rect = pygame.Rect((cookiex, cookiey), (cookiewidth, cookieheight))
  
     # Check if any of the rocket is colliding with any of the devils
@@ -329,7 +326,7 @@ while True:
     while i < len(devils):
         devil = devils[i]
 
-        if rocket_rect.colliderect(devil.rect):
+        if rocket.rect.colliderect(devil.rect):
             gamelost = True
             break
         i += 1
@@ -340,7 +337,7 @@ while True:
         continue
  
     # Check if the rocket is colliding with the cookie
-    if rocket_rect.colliderect(cookie_rect):
+    if rocket.rect.colliderect(cookie_rect):
         cookiex = random.randint(0, WIDTH)
         cookiey = random.randint(0, HEIGHT)
         score += 1
@@ -357,7 +354,7 @@ while True:
         showboostbar(boostleft)
 
         # Render rocket and cookie
-        mainsurf.blit(rocketimage, (rocketx, rockety))
+        rocket.draw()
         mainsurf.blit(cookieimage, (cookiex, cookiey))
  
         # Render devils
