@@ -83,19 +83,24 @@ class Devil(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self)
 
-class StarField(pygame.Surface):
+class StarField(pygame.sprite.Sprite):
     def __init__(self):
-        super().__init__((WIDTH, HEIGHT))
+        super().__init__()
+
+        self.image = pygame.Surface((WIDTH, HEIGHT))
+        self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
 
         x = 0
         while x < WIDTH:
             y = 0
             while y < HEIGHT:
                 if random.randint(0, 100) == 0:
-                    self.set_at((x, y), STAR_COLOR)
+                    self.image.set_at((x, y), randomcolor())
                 y += 1
             x += 1
 
+    def draw(self):
+        mainsurf.blit(self.image, self.rect)
 
 def winscreen():
     mainsurf.fill(BACKGROUND_COLOR)
@@ -336,7 +341,7 @@ while True:
     else:
         ### The game state has been updated. Time to render!
 
-        mainsurf.blit(starfield, (0, 0))
+        starfield.draw()
 
         showscore(score)
         showboostbar(boostleft)
