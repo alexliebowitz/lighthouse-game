@@ -56,6 +56,16 @@ gamelost = False
 
 devilgroup = pygame.sprite.Group()
 
+class Rocket(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        self.image = pygame.image.load("rocket.png")
+        self.rect = pygame.rect.Rect((x, y), self.image.get_size())
+
+    def draw(self):
+        mainsurf.blit(self.image, self.rect)
+
 class Devil(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
