@@ -5,6 +5,10 @@ from pygame.locals import *
 
 ### Initialize constants
 
+WIN_SOUND_FILE = "sounds/winscreen.wav"
+LOSE_SOUND_FILE = "sounds/sadtrombone.wav"
+LEVEL_UP_SOUND_FILE = "sounds/omnomnom.ogg"
+
 WIDTH = 1000
 HEIGHT = 800
 BOOST_BAR_WIDTH = 150
@@ -25,9 +29,14 @@ MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
 
 pygame.init()
+pygame.mixer.init()
  
 mainfont = pygame.font.SysFont('Helvetica', 25)
  
+winsound = pygame.mixer.Sound(WIN_SOUND_FILE)
+losesound = pygame.mixer.Sound(LOSE_SOUND_FILE)
+levelupsound = pygame.mixer.Sound(LEVEL_UP_SOUND_FILE)
+
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
 rocketspeed = 1
@@ -334,6 +343,7 @@ while True:
 
         if rocket.rect.colliderect(devil.rect):
             gamelost = True
+            losesound.play()
             break
         i += 1
  
@@ -346,20 +356,33 @@ while True:
     if rocket.rect.colliderect(cookie.rect):
         cookie = Cookie()
         score += 1
-        devils.append(Devil())
 
-    if score >= MAX_POINTS:
-        gamewon = True
-    else:
-        ### The game state has been updated. Time to render!
+        if score >= MAX_POINTS:
+            gamewon = True
+            winsound.play()
+        else:
+            devils.append(Devil())
+            levelupsound.play()
 
-        starfield.draw()
 
-        showscore(score)
-        showboostbar(boostleft)
+    if gamewon:
+        continue
+
+    ### The game state has been updated. Time to render!
+
+    starfield.draw()
+
+    showscore(score)
+    showboostbar(boostleft)
 
     # Render rocket and cookie
     rocket.draw()
     cookie.draw()
 
+    # Render devils
+    i = 0
+    while i < len(devils):
+        devil = devils[i]
+        devil.draw()
+        i += 1
     pygame.display.update()
