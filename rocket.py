@@ -30,19 +30,12 @@ mainfont = pygame.font.SysFont('Helvetica', 25)
  
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
-cookieimage = pygame.image.load('cookie.png')
-
-cookiewidth, cookieheight = cookieimage.get_size()
-
 rocketspeed = 1
 
 boostmode = False
 boostleft = MAX_BOOST
 
 devils = []
-
-cookiex = random.randint(0, WIDTH)
-cookiey = random.randint(0, HEIGHT)
 
 score = 0
 
@@ -196,6 +189,7 @@ def showboostbar(boostleft):
 starfield = StarField()
 
 rocket = Rocket()
+cookie = Cookie()
 
 # Create first devil
 devils.append(Devil())
@@ -327,10 +321,6 @@ while True:
 
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
-    # Create Pygame rectangle objects for the rocket and cookie. Rectangles are not directly displayed
-    # to the screen; they're just used for checking for collisions and other calculations.
-    cookie_rect = pygame.Rect((cookiex, cookiey), (cookiewidth, cookieheight))
- 
     # Check if any of the rocket is colliding with any of the devils
     i = 0
     while i < len(devils):
@@ -347,9 +337,8 @@ while True:
         continue
  
     # Check if the rocket is colliding with the cookie
-    if rocket.rect.colliderect(cookie_rect):
-        cookiex = random.randint(0, WIDTH)
-        cookiey = random.randint(0, HEIGHT)
+    if rocket.rect.colliderect(cookie.rect):
+        cookie = Cookie()
         score += 1
         devils.append(Devil())
 
@@ -363,15 +352,8 @@ while True:
         showscore(score)
         showboostbar(boostleft)
 
-        # Render rocket and cookie
-        rocket.draw()
-        mainsurf.blit(cookieimage, (cookiex, cookiey))
- 
-        # Render devils
-        i = 0
-        while i < len(devils):
-            devil = devils[i]
-            devil.draw()
-            i += 1
+    # Render rocket and cookie
+    rocket.draw()
+    cookie.draw()
 
     pygame.display.update()
