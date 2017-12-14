@@ -89,6 +89,16 @@ class Devil(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self)
 
+class Cookie(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        self.image = pygame.image.load("cookie.png")
+        self.rect = pygame.rect.Rect((random.randint(0, WIDTH), random.randint(0, HEIGHT)), self.image.get_size())
+
+    def draw(self):
+        mainsurf.blit(self.image, self.rect)
+
 class StarField(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
