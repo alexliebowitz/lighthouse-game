@@ -5,10 +5,6 @@ from pygame.locals import *
 
 ### Initialize constants
 
-WIN_SOUND_FILE = "sounds/winscreen.wav"
-LOSE_SOUND_FILE = "sounds/sadtrombone.wav"
-LEVEL_UP_SOUND_FILE = "sounds/omnomnom.ogg"
-
 WIDTH = 1000
 HEIGHT = 800
 BOOST_BAR_WIDTH = 150
@@ -32,10 +28,6 @@ pygame.init()
 pygame.mixer.init()
  
 mainfont = pygame.font.SysFont('Helvetica', 25)
- 
-winsound = pygame.mixer.Sound(WIN_SOUND_FILE)
-losesound = pygame.mixer.Sound(LOSE_SOUND_FILE)
-levelupsound = pygame.mixer.Sound(LEVEL_UP_SOUND_FILE)
 
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -54,11 +46,10 @@ gamelost = False
 
 devilgroup = pygame.sprite.Group()
 
-def randomshade():
-    return random.randint(0, 255)
+winsound = pygame.mixer.Sound("sounds/winscreen.wav")
+losesound = pygame.mixer.Sound("sounds/sadtrombone.wav")
+levelupsound = pygame.mixer.Sound("sounds/omnomnom.ogg")
 
-def randomcolor():
-    return (randomshade(), randomshade(), randomshade())
 
 class Rocket(pygame.sprite.Sprite):
     def __init__(self):
@@ -95,7 +86,7 @@ class Devil(pygame.sprite.Sprite):
         devilgroup.add(self)
 
     def draw(self):
-        mainsurf.blit(self.image, self)
+        mainsurf.blit(self.image, self.rect)
 
 class Cookie(pygame.sprite.Sprite):
     def __init__(self):
@@ -350,6 +341,7 @@ while True:
     # If the rocket collided with one of the devils, we lost, so we go back to the top of the game
     # loop to display the lose screen.
     if gamelost:
+        losesound.play()
         continue
  
     # Check if the rocket is colliding with the cookie
@@ -363,26 +355,23 @@ while True:
         else:
             devils.append(Devil())
             levelupsound.play()
+    else:
+        ### The game state has been updated. Time to render!
 
+        starfield.draw()
 
-    if gamewon:
-        continue
+        showscore(score)
+        showboostbar(boostleft)
 
-    ### The game state has been updated. Time to render!
+        # Render rocket and cookie
+        rocket.draw()
+        cookie.draw()
 
-    starfield.draw()
+        # Render devils
+        i = 0
+        while i < len(devils):
+            devil = devils[i]
+            devil.draw()
+            i += 1
 
-    showscore(score)
-    showboostbar(boostleft)
-
-    # Render rocket and cookie
-    rocket.draw()
-    cookie.draw()
-
-    # Render devils
-    i = 0
-    while i < len(devils):
-        devil = devils[i]
-        devil.draw()
-        i += 1
     pygame.display.update()
