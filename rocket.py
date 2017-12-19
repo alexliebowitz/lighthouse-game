@@ -110,7 +110,15 @@ class StarField(pygame.sprite.Sprite):
             x = 0
             while x < WIDTH:
                 if random.randint(0, 100) == 0:
-                    self.image.set_at((x, y), randomcolor())
+                    startype = random.choice(['white', 'red', 'blue'])
+                    if startype == 'white':
+                        color = (255, 255, 255)
+                    elif startype == 'red':
+                        color = (random.randint(150, 255), 50, 50)
+                    elif startype == 'blue':
+                        color = (50, 50, random.randint(150, 255))
+
+                    self.image.set_at((x, y), color)
                 x += 1
             y += 1
 
