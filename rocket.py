@@ -55,7 +55,7 @@ class Rocket(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("rocket.png")
+        self.image = pygame.image.load("images/rocket.png")
         self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
 
     def draw(self):
@@ -65,7 +65,7 @@ class Devil(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("devil.png")
+        self.image = pygame.image.load("images/devil.png")
 
         side = random.randint(0, 3)
         if side == 0:  # Top
@@ -92,7 +92,7 @@ class Cookie(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("cookie.png")
+        self.image = pygame.image.load("images/cookie.png")
         self.rect = pygame.rect.Rect((random.randint(0, WIDTH), random.randint(0, HEIGHT)), self.image.get_size())
 
     def draw(self):
