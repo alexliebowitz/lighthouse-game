@@ -92,10 +92,29 @@ class BossDevil(Devil):
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("images/boss.png")
+        # Animation logic
+        self._framecounter = 0
+        self._inverted = False
+        self._normalimage = pygame.image.load("images/boss.png")
+        self._invertedimage = pygame.image.load("images/boss2.png")
+
+        self.image = self._normalimage
+
         self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
 
         devilgroup.add(self)
+
+    def draw(self):
+        if self._framecounter >= 3:
+            self._framecounter = 0
+            self._inverted = not self._inverted
+            if self._inverted:
+                self.image = self._normalimage
+            else:
+                self.image = self._invertedimage
+        self._framecounter += 1
+
+        mainsurf.blit(self.image, self.rect)
 
 class Cookie(pygame.sprite.Sprite):
     def __init__(self):
