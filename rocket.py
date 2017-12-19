@@ -342,7 +342,6 @@ while True:
 
         if rocket.rect.colliderect(devil.rect):
             gamelost = True
-            losesound.play()
             break
         i += 1
  
@@ -357,29 +356,30 @@ while True:
         cookie = Cookie()
         score += 1
 
-        if score >= MAX_POINTS:
+        if score >= MAX_POINTS:  # We won
             gamewon = True
             winsound.play()
+            continue
         else:
             devils.append(Devil())
             levelupsound.play()
-    else:
-        ### The game state has been updated. Time to render!
 
-        starfield.draw()
+    ### The game state has been updated. Time to render!
 
-        showscore(score)
-        showboostbar(boostleft)
+    starfield.draw()
 
-        # Render rocket and cookie
-        rocket.draw()
-        cookie.draw()
+    showscore(score)
+    showboostbar(boostleft)
 
-        # Render devils
-        i = 0
-        while i < len(devils):
-            devil = devils[i]
-            devil.draw()
-            i += 1
+    # Render rocket and cookie
+    rocket.draw()
+    cookie.draw()
+
+    # Render devils
+    i = 0
+    while i < len(devils):
+        devil = devils[i]
+        devil.draw()
+        i += 1
 
     pygame.display.update()
