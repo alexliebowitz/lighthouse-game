@@ -88,6 +88,15 @@ class Devil(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self.rect)
 
+class BossDevil(Devil):
+    def __init__(self):
+        super().__init__()
+
+        self.image = pygame.image.load("images/boss.png")
+        self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
+
+        devilgroup.add(self)
+
 class Cookie(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -353,15 +362,19 @@ while True:
  
     # Check if the rocket is colliding with the cookie
     if rocket.rect.colliderect(cookie.rect):
-        cookie = Cookie()
         score += 1
 
-        if score >= MAX_POINTS:  # We won
+        if score > MAX_POINTS:  # We won
             gamewon = True
             winsound.play()
             continue
         else:
-            devils.append(Devil())
+            cookie = Cookie()
+            if score == MAX_POINTS:  # Final level
+                devilgroup.empty()
+                devils = [BossDevil()]
+            else:
+                devils.append(Devil())
             levelupsound.play()
 
     ### The game state has been updated. Time to render!
