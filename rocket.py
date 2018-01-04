@@ -21,6 +21,7 @@ MAX_SPEED = 10
 BOOST_SPEED = 20
 MIN_BOOST = 20
 MAX_BOOST = 50
+BOMB_BLAST_RADIUS = 200
 MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
 
@@ -37,6 +38,7 @@ boostmode = False
 boostleft = MAX_BOOST
 
 devils = []
+bombs = []
 
 score = 0
 
@@ -125,6 +127,41 @@ class Cookie(pygame.sprite.Sprite):
 
     def draw(self):
         mainsurf.blit(self.image, self.rect)
+
+class Bomb(pygame.sprite.Sprite):
+    _frames = None
+    radius = None
+    exploding = None
+    done = None
+
+    def __init__(self, x, y):
+        super().__init__()
+
+        self._frames = 0
+        self.exploding = False
+        self.radius = 0
+        self.done = False
+
+        self.image = pygame.image.load("images/bomb.png")
+        self.rect = pygame.rect.Rect((x, y), self.image.get_size())
+
+    def draw(self):
+        self._frames += 1
+
+        if self._frames < 100:
+            # Less than 100 frames: no blast yet, so draw the bomb
+            mainsurf.blit(self.image, self.rect)
+        elif self.radius <= BOMB_BLAST_RADIUS:
+            self.exploding = True
+
+            # We are over 100 frames, so set the radius based on the number of frames since 100
+            self.radius = (self._frames - 100) * 20
+            pygame.draw.circle(mainsurf, (255, 255, 255), (self.rect.x, self.rect.y), self.radius)
+        else:
+            # We are past the radius, so we do not draw, and we set this.done to True
+            # so the main game loop knows it can remove this from the list of bombs.
+            self.done = True
+
 
 class StarField(pygame.sprite.Sprite):
     def __init__(self):
@@ -360,6 +397,12 @@ while True:
 
         i += 1
 
+    # If we get hit by the explosion, we lose
+    for bomb in bombs:
+        if bomb.exploding and pygame.sprite.collide_circle(bomb, rocket):
+            losesound.play()
+            gamelost = True
+            continue
 
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
@@ -372,7 +415,7 @@ while True:
             gamelost = True
             break
         i += 1
- 
+
     # If the rocket collided with one of the devils, we lost, so we go back to the top of the game
     # loop to display the lose screen.
     if gamelost:
@@ -396,6 +439,21 @@ while True:
                 devils.append(Devil())
             levelupsound.play()
 
+    if event.type == KEYUP and event.key == K_RETURN:  # Drop a bomb
+        bombs.append(Bomb(rocket.rect.x, rocket.rect.y))
+
+    # Clear out bombs that have finished detonating
+    for bomb in list(bombs):
+        if bomb.done:
+            bombs.remove(bomb)
+
+    # Devils that are contacting a bomb's blast radius go bye-bye.
+    for bomb in bombs:
+        for devil in list(devils):
+            if bomb.exploding and pygame.sprite.collide_circle(bomb, devil):
+                devils.remove(devil)
+                devilgroup.remove(devil)
+
     ### The game state has been updated. Time to render!
 
     starfield.draw()
@@ -403,6 +461,8 @@ while True:
     showscore(score)
     showboostbar(boostleft)
 
+    for bomb in bombs:
+        bomb.draw()
     # Render rocket and cookie
     rocket.draw()
     cookie.draw()
