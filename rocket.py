@@ -22,6 +22,8 @@ BOOST_SPEED = 20
 MIN_BOOST = 20
 MAX_BOOST = 50
 BOMB_BLAST_RADIUS = 200
+BOMB_EXPLOSION_COLOR_1 = (255, 255, 255)
+BOMB_EXPLOSION_COLOR_2 = (200, 200, 200)
 MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
 
@@ -138,6 +140,7 @@ class Bomb(pygame.sprite.Sprite):
         super().__init__()
 
         self._frames = 0
+        self._bright = True
         self.radius = 0
         self.exploding = False
         self.done = False
@@ -155,7 +158,15 @@ class Bomb(pygame.sprite.Sprite):
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
             self.radius = (self._frames - 100) * 20
-            pygame.draw.circle(mainsurf, (255, 255, 255), (self.rect.centerx, self.rect.centery), self.radius)
+
+            # Every third frame, flip our brightness state (if it's dark, switch
+            # to bright; if it's bright, switch to dark)
+            if self._frames % 3 != 0:
+                self._bright = not self._bright
+
+            color = BOMB_EXPLOSION_COLOR_1 if self._bright else BOMB_EXPLOSION_COLOR_2
+
+            pygame.draw.circle(mainsurf, color, (self.rect.centerx, self.rect.centery), self.radius)
         else:
             # We are past the radius, so we do not draw, and we set this.done to True
             # so the main game loop knows it can remove this from the list of bombs.
