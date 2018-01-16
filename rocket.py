@@ -444,7 +444,8 @@ while True:
                 devilgroup.empty()
                 devils = [BossDevil()]
             else:
-                devils.append(Devil())
+                for i in range(score):
+                    devils.append(Devil())
             levelupsound.play()
 
     if event.type == KEYUP and event.key == K_RETURN:  # Drop a bomb
