@@ -138,8 +138,8 @@ class Bomb(pygame.sprite.Sprite):
         super().__init__()
 
         self._frames = 0
-        self.exploding = False
         self.radius = 0
+        self.exploding = False
         self.done = False
 
         self.image = pygame.image.load("images/bomb.png")
@@ -148,15 +148,14 @@ class Bomb(pygame.sprite.Sprite):
     def draw(self):
         self._frames += 1
 
-        if self._frames < 100:
-            # Less than 100 frames: no blast yet, so draw the bomb
+        if self._frames < 100:  # Unexploded
             mainsurf.blit(self.image, self.rect)
-        elif self.radius <= BOMB_BLAST_RADIUS:
+        elif self.radius <= BOMB_BLAST_RADIUS:  # Exploding
             self.exploding = True
 
-            # We are over 100 frames, so set the radius based on the number of frames since 100
+            # Set the radius based on the number of frames since 100 (so it grows every frame)
             self.radius = (self._frames - 100) * 20
-            pygame.draw.circle(mainsurf, (255, 255, 255), (self.rect.x, self.rect.y), self.radius)
+            pygame.draw.circle(mainsurf, (255, 255, 255), (self.rect.centerx, self.rect.centery), self.radius)
         else:
             # We are past the radius, so we do not draw, and we set this.done to True
             # so the main game loop knows it can remove this from the list of bombs.
@@ -397,16 +396,10 @@ while True:
 
         i += 1
 
-    # If we get hit by the explosion, we lose
-    for bomb in bombs:
-        if bomb.exploding and pygame.sprite.collide_circle(bomb, rocket):
-            losesound.play()
-            gamelost = True
-            continue
 
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
-    # Check if any of the rocket is colliding with any of the devils
+    # Check if the rocket is colliding with any of the devils. If so, we lost
     i = 0
     while i < len(devils):
         devil = devils[i]
@@ -416,8 +409,23 @@ while True:
             break
         i += 1
 
-    # If the rocket collided with one of the devils, we lost, so we go back to the top of the game
-    # loop to display the lose screen.
+    if gamelost:
+        losesound.play()
+        continue
+
+    # Check for collisions with bombs.
+    for bomb in bombs:
+        if bomb.exploding and pygame.sprite.collide_circle(bomb, rocket):
+            # If the rocket is colliding with an exploding bomb, we lose
+            gamelost = True
+            continue
+
+        for devil in list(devils):
+            # If a devil is colliding with an exploding bomb, it goes bye-bye
+            if bomb.exploding and pygame.sprite.collide_circle(bomb, devil):
+                devils.remove(devil)
+                devilgroup.remove(devil)
+
     if gamelost:
         losesound.play()
         continue
@@ -447,12 +455,6 @@ while True:
         if bomb.done:
             bombs.remove(bomb)
 
-    # Devils that are contacting a bomb's blast radius go bye-bye.
-    for bomb in bombs:
-        for devil in list(devils):
-            if bomb.exploding and pygame.sprite.collide_circle(bomb, devil):
-                devils.remove(devil)
-                devilgroup.remove(devil)
 
     ### The game state has been updated. Time to render!
 
@@ -461,11 +463,12 @@ while True:
     showscore(score)
     showboostbar(boostleft)
 
-    for bomb in bombs:
-        bomb.draw()
     # Render rocket and cookie
     rocket.draw()
     cookie.draw()
+
+    for bomb in bombs:
+        bomb.draw()
 
     # Render devils
     i = 0
