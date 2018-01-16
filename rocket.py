@@ -132,6 +132,7 @@ class Cookie(pygame.sprite.Sprite):
 
 class Bomb(pygame.sprite.Sprite):
     _frames = None
+    _frames_since_detonated = None
     radius = None
     exploding = None
     done = None
@@ -148,16 +149,25 @@ class Bomb(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/bomb.png")
         self.rect = pygame.rect.Rect((x, y), self.image.get_size())
 
+    def detonate(self):
+        self.exploding = True
+        self._frames_since_detonated = 0
+
     def draw(self):
         self._frames += 1
+        if self.exploding:
+            self._frames_since_detonated += 1
 
-        if self._frames < 100:  # Unexploded
+        if self._frames == 100 and not self.exploding:  # At the 100 frame mark, we detonate
+            self.detonate()
+
+        if not self.exploding:
+            # We haven't exploded yet, so draw the normal bomb
             mainsurf.blit(self.image, self.rect)
-        elif self.radius <= BOMB_BLAST_RADIUS:  # Exploding
-            self.exploding = True
-
-            # Set the radius based on the number of frames since 100 (so it grows every frame)
-            self.radius = (self._frames - 100) * 20
+        elif self.radius <= BOMB_BLAST_RADIUS:
+            # We are currently exploding. Set the radius based on the number of frames since detonation
+            # (so it grows every frame)
+            self.radius = self._frames_since_detonated * 20
 
             # Every third frame, flip our brightness state (if it's dark, switch
             # to bright; if it's bright, switch to dark)
@@ -407,6 +417,9 @@ while True:
 
         i += 1
 
+    if event.type == KEYDOWN and event.key == K_d:
+        for bomb in bombs:
+            bomb.detonate()
 
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
