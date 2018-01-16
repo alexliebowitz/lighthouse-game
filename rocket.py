@@ -123,7 +123,7 @@ class Cookie(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.image.load("images/cookie.png")
-        self.rect = pygame.rect.Rect((random.randint(0, WIDTH), random.randint(0, HEIGHT)), self.image.get_size())
+        self.rect = pygame.rect.Rect((random.randint(15, WIDTH - 15), random.randint(15, HEIGHT - 15)), self.image.get_size())
 
     def draw(self):
         mainsurf.blit(self.image, self.rect)
