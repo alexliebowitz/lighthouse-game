@@ -132,6 +132,7 @@ class Cookie(pygame.sprite.Sprite):
 
 class Bomb(pygame.sprite.Sprite):
     _frames = None
+    _blinker = None
     _frames_since_detonated = None
     radius = None
     exploding = None
@@ -141,7 +142,7 @@ class Bomb(pygame.sprite.Sprite):
         super().__init__()
 
         self._frames = 0
-        self._bright = True
+        self._blinker = False
         self.radius = 0
         self.exploding = False
         self.done = False
@@ -164,18 +165,16 @@ class Bomb(pygame.sprite.Sprite):
         if not self.exploding:
             # We haven't exploded yet, so draw the normal bomb
             mainsurf.blit(self.image, self.rect)
-        elif self.radius <= BOMB_BLAST_RADIUS:
-            # We are currently exploding. Set the radius based on the number of frames since detonation
-            # (so it grows every frame)
+        elif self.radius <= BOMB_BLAST_RADIUS:  # Exploding
+            self._frames_since_detonated += 1
+            if self._frames_since_detonated % 3 == 0:  # Every third frame...
+                self._blinker = not self._blinker
+
             self.radius = self._frames_since_detonated * 20
 
-            # Every third frame, flip our brightness state (if it's dark, switch
-            # to bright; if it's bright, switch to dark)
-            if self._frames % 3 != 0:
-                self._bright = not self._bright
+            color = BOMB_EXPLOSION_COLOR_1 if self._blinker else BOMB_EXPLOSION_COLOR_2
 
-            color = BOMB_EXPLOSION_COLOR_1 if self._bright else BOMB_EXPLOSION_COLOR_2
-
+            # Set the radius based on the number of frames since 100 (so it grows every frame)
             pygame.draw.circle(mainsurf, color, (self.rect.centerx, self.rect.centery), self.radius)
         else:
             # We are past the radius, so we do not draw, and we set this.done to True
@@ -449,6 +448,11 @@ while True:
             if bomb.exploding and pygame.sprite.collide_circle(bomb, devil):
                 devils.remove(devil)
                 devilgroup.remove(devil)
+
+    if event.type == KEYDOWN and event.key == K_d:
+        for bomb in bombs:
+            bomb.detonate()
+
 
     if gamelost:
         losesound.play()
