@@ -135,10 +135,10 @@ class Bomb(pygame.sprite.Sprite):
     exploding = None
     done = None
 
-    GROW_RATE = 20
+    GROW_RATE = 18
     EXPLOSION_COLOR_1 = (255, 255, 255)
     EXPLOSION_COLOR_2 = (200, 200, 200)
-    BLAST_RADIUS = 200
+    BLAST_RADIUS = 250
     AUTO_DETONATE_FRAMES = 100
 
     def __init__(self, x, y):
