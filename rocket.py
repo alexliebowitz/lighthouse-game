@@ -134,6 +134,7 @@ class Bomb(pygame.sprite.Sprite):
     radius = None
     exploding = None
     done = None
+    _circlesurf = None
 
     GROW_RATE = 18
     EXPLOSION_COLOR_1 = (255, 255, 255)
@@ -152,6 +153,8 @@ class Bomb(pygame.sprite.Sprite):
 
         self.image = pygame.image.load("images/bomb.png")
         self.rect = pygame.rect.Rect((x, y), self.image.get_size())
+        self._circlesurf = pygame.Surface((WIDTH, HEIGHT))
+        self._circlesurf.set_colorkey((0, 0, 0))
 
     def detonate(self):
         self.exploding = True
@@ -178,7 +181,8 @@ class Bomb(pygame.sprite.Sprite):
             color = self.EXPLOSION_COLOR_1 if self._blinker else self.EXPLOSION_COLOR_2
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
-            pygame.draw.circle(mainsurf, color, (self.rect.centerx, self.rect.centery), self.radius)
+            pygame.draw.circle(self._circlesurf, color, (self.rect.centerx, self.rect.centery), self.radius)
+            mainsurf.blit(self._circlesurf, (0, 0))
         else:
             # We are past the radius, so we do not draw, and we set this.done to True
             # so the main game loop knows it can remove this from the list of bombs.
