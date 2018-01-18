@@ -21,9 +21,6 @@ MAX_SPEED = 10
 BOOST_SPEED = 20
 MIN_BOOST = 20
 MAX_BOOST = 50
-BOMB_BLAST_RADIUS = 200
-BOMB_EXPLOSION_COLOR_1 = (255, 255, 255)
-BOMB_EXPLOSION_COLOR_2 = (200, 200, 200)
 MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
 
@@ -138,6 +135,12 @@ class Bomb(pygame.sprite.Sprite):
     exploding = None
     done = None
 
+    GROW_RATE = 20
+    EXPLOSION_COLOR_1 = (255, 255, 255)
+    EXPLOSION_COLOR_2 = (200, 200, 200)
+    BLAST_RADIUS = 200
+    AUTO_DETONATE_FRAMES = 100
+
     def __init__(self, x, y):
         super().__init__()
 
@@ -159,20 +162,20 @@ class Bomb(pygame.sprite.Sprite):
         if self.exploding:
             self._frames_since_detonated += 1
 
-        if self._frames == 100 and not self.exploding:  # At the 100 frame mark, we detonate
+        if self._frames == self.AUTO_DETONATE_FRAMES and not self.exploding:  # At the 100 frame mark, we detonate
             self.detonate()
 
         if not self.exploding:
             # We haven't exploded yet, so draw the normal bomb
             mainsurf.blit(self.image, self.rect)
-        elif self.radius <= BOMB_BLAST_RADIUS:  # Exploding
+        elif self.radius <= self.BLAST_RADIUS:  # Exploding
             self._frames_since_detonated += 1
             if self._frames_since_detonated % 3 == 0:  # Every third frame...
                 self._blinker = not self._blinker
 
-            self.radius = self._frames_since_detonated * 20
+            self.radius = self._frames_since_detonated * self.GROW_RATE
 
-            color = BOMB_EXPLOSION_COLOR_1 if self._blinker else BOMB_EXPLOSION_COLOR_2
+            color = self.EXPLOSION_COLOR_1 if self._blinker else self.EXPLOSION_COLOR_2
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
             pygame.draw.circle(mainsurf, color, (self.rect.centerx, self.rect.centery), self.radius)
