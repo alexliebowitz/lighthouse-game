@@ -156,6 +156,9 @@ class Bomb(pygame.sprite.Sprite):
         self._circlesurf = pygame.Surface((WIDTH, HEIGHT))
         self._circlesurf.set_colorkey((0, 0, 0))
 
+    def _get_alpha(self):
+        return 255 - (self._frames_since_detonated * 10)
+
     def detonate(self):
         self.exploding = True
         self._frames_since_detonated = 0
@@ -179,6 +182,8 @@ class Bomb(pygame.sprite.Sprite):
             self.radius = self._frames_since_detonated * self.GROW_RATE
 
             color = self.EXPLOSION_COLOR_1 if self._blinker else self.EXPLOSION_COLOR_2
+
+            self.circlesurf.set_alpha(self._get_alpha())
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
             pygame.draw.circle(self._circlesurf, color, (self.rect.centerx, self.rect.centery), self.radius)
