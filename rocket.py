@@ -15,7 +15,7 @@ BOOST_BAR_LINE_COLOR = (50, 50, 50)
 BACKGROUND_COLOR = (180, 200, 240)
 PAUSE_BACKGROUND_COLOR = (255, 255, 255)
 FRAMERATE = 60
-DEVILSPEED = 1.2
+DEVILSPEED = 3
 MAX_POINTS = 10
 MAX_SPEED = 10
 BOOST_SPEED = 20
@@ -38,6 +38,7 @@ boostleft = MAX_BOOST
 
 devils = []
 bombs = []
+timebomb = None
 
 score = 0
 
@@ -157,7 +158,12 @@ class Bomb(pygame.sprite.Sprite):
         self._circlesurf.set_colorkey((0, 0, 0))
 
     def _get_alpha(self):
-        return 255 - (self._frames_since_detonated * 10)
+        # ratio_done is how far along we are in the explosion.
+        # For example, if we're 50% done, then ratio_done will be 0.5.
+        ratio_done = self.radius / self.BLAST_RADIUS
+
+        # Start at 255 (no transparency) and then fade out to 0
+        return 255 * (1 - ratio_done)
 
     def detonate(self):
         self.exploding = True
@@ -217,7 +223,7 @@ class TimeBomb(Bomb):
     def getspeedmodifier(self):
         # Used by the main game loop to find out how much the world
         # should be slowed down. Returns a number from 0 to 1.
-        return 0.6
+        return 0.3
 
 
 class StarField(pygame.sprite.Sprite):
@@ -420,28 +426,42 @@ while True:
     if rocket.rect.y > HEIGHT - rocket.rect.height:
         rocket.rect.y = HEIGHT - rocket.rect.height
  
-    ### Update devil position
+    ### Update devil positions
+
+    # If there is a time bomb and it's exploding, get the speed modifier
+    # so we can slow down devils that are colliding with it.
+    if timebomb is not None and timebomb.exploding:
+        speedmodifier = timebomb.getspeedmodifier()
 
     i = 0
     while i < len(devils): # For each devil...
         # Get the current x and y position for this devil
         devil = devils[i]
 
+        if timebomb is not None and timebomb.exploding and pygame.sprite.collide_circle(timebomb, rocket):
+            # There is time bomb exploding and this devil is colliding with it, so slow down the devil
+            # by multiplying the speed by the modifier returned (for example, if the speed modifier is
+            # 0.5, we go half speed)
+            speed = DEVILSPEED * speedmodifier
+        else:
+            # This devil is not colliding with an exploding time bomb, so use the normal speed.
+            speed = DEVILSPEED
+
         oldx = devil.rect.x
         oldy = devil.rect.y
 
         # Calculate the *new* x and y position for this devil
         if devil.rect.x > rocket.rect.x:
-            devil.rect.x -= DEVILSPEED
+            devil.rect.x -= speed
     
         if devil.rect.x < rocket.rect.x:
-            devil.rect.x += DEVILSPEED
+            devil.rect.x += speed
      
         if devil.rect.y > rocket.rect.y:
-            devil.rect.y -= DEVILSPEED
+            devil.rect.y -= speed
      
         if devil.rect.y < rocket.rect.y:
-            devil.rect.y += DEVILSPEED
+            devil.rect.y += speed
 
         devilgroup.remove(devil)
         collidingdevil = pygame.sprite.spritecollideany(devil, devilgroup)
@@ -522,6 +542,13 @@ while True:
         if bomb.done:
             bombs.remove(bomb)
 
+    if timebomb is not None and timebomb.done:
+        timebomb = None
+
+    if event.type == KEYDOWN and event.key == K_t and timebomb is None:  # Drop a time bomb
+        timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
+
+
 
     ### The game state has been updated. Time to render!
 
@@ -534,14 +561,21 @@ while True:
     rocket.draw()
     cookie.draw()
 
-    for bomb in bombs:
-        bomb.draw()
-
     # Render devils
     i = 0
     while i < len(devils):
         devil = devils[i]
         devil.draw()
         i += 1
+
+    # Render bombs
+    for bomb in bombs:
+        bomb.draw()
+
+    # Render time bomb
+    if timebomb is not None:
+        timebomb.draw()
+
+    rocket.draw()
 
     pygame.display.update()
