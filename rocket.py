@@ -193,6 +193,32 @@ class Bomb(pygame.sprite.Sprite):
             # so the main game loop knows it can remove this from the list of bombs.
             self.done = True
 
+class TimeBomb(Bomb):
+    GROW_RATE = 30
+    EXPLOSION_COLOR_1 = (100, 100, 255, 128)
+    EXPLOSION_COLOR_2 = (50, 50, 255, 128)
+    BLAST_RADIUS = 5000
+    AUTO_DETONATE_FRAMES = 20
+
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
+        self.image = pygame.image.load("images/timebomb.png")
+        self.rect = pygame.rect.Rect((x, y), self.image.get_size())
+
+    def _get_alpha(self):
+        ratio_done = self.radius / self.BLAST_RADIUS
+
+        # Fade out from 255 down based on how far along we are in the explosion.
+        # But don't go below 20, so we can always see some blue
+        return max(255 * (1 - ratio_done), 20)
+
+
+    def getspeedmodifier(self):
+        # Used by the main game loop to find out how much the world
+        # should be slowed down. Returns a number from 0 to 1.
+        return 0.6
+
 
 class StarField(pygame.sprite.Sprite):
     def __init__(self):
