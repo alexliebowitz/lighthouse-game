@@ -15,7 +15,7 @@ BOOST_BAR_LINE_COLOR = (50, 50, 50)
 BACKGROUND_COLOR = (180, 200, 240)
 PAUSE_BACKGROUND_COLOR = (255, 255, 255)
 FRAMERATE = 60
-DEVILSPEED = 3
+DEVILSPEED = 1.2
 MAX_POINTS = 10
 MAX_SPEED = 10
 BOOST_SPEED = 20
@@ -129,19 +129,20 @@ class Cookie(pygame.sprite.Sprite):
         mainsurf.blit(self.image, self.rect)
 
 class Bomb(pygame.sprite.Sprite):
+    BLAST_RADIUS = 300
+    EXPLOSION_COLOR_1 = (255, 255, 255)
+    EXPLOSION_COLOR_2 = (200, 200, 200)
+    GROW_RATE = 10
+    FUSE = 100
+
     _frames = None
     _blinker = None
     _frames_since_detonated = None
+    _circlesurf = None
+
     radius = None
     exploding = None
     done = None
-    _circlesurf = None
-
-    GROW_RATE = 18
-    EXPLOSION_COLOR_1 = (255, 255, 255)
-    EXPLOSION_COLOR_2 = (200, 200, 200)
-    BLAST_RADIUS = 250
-    AUTO_DETONATE_FRAMES = 100
 
     def __init__(self, x, y):
         super().__init__()
@@ -151,11 +152,11 @@ class Bomb(pygame.sprite.Sprite):
         self.radius = 0
         self.exploding = False
         self.done = False
+        self._circlesurf = pygame.Surface((WIDTH, HEIGHT))
+        self._circlesurf.set_colorkey((0, 0, 0))
 
         self.image = pygame.image.load("images/bomb.png")
         self.rect = pygame.rect.Rect((x, y), self.image.get_size())
-        self._circlesurf = pygame.Surface((WIDTH, HEIGHT))
-        self._circlesurf.set_colorkey((0, 0, 0))
 
     def _get_alpha(self):
         # ratio_done is how far along we are in the explosion.
@@ -174,7 +175,7 @@ class Bomb(pygame.sprite.Sprite):
         if self.exploding:
             self._frames_since_detonated += 1
 
-        if self._frames == self.AUTO_DETONATE_FRAMES and not self.exploding:  # At the 100 frame mark, we detonate
+        if self._frames == self.FUSE and not self.exploding:  # At the 100 frame mark, we detonate
             self.detonate()
 
         if not self.exploding:
@@ -188,8 +189,7 @@ class Bomb(pygame.sprite.Sprite):
             self.radius = self._frames_since_detonated * self.GROW_RATE
 
             color = self.EXPLOSION_COLOR_1 if self._blinker else self.EXPLOSION_COLOR_2
-
-            self.circlesurf.set_alpha(self._get_alpha())
+            self._circlesurf.set_alpha(self._get_alpha())
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
             pygame.draw.circle(self._circlesurf, color, (self.rect.centerx, self.rect.centery), self.radius)
@@ -201,10 +201,10 @@ class Bomb(pygame.sprite.Sprite):
 
 class TimeBomb(Bomb):
     GROW_RATE = 30
-    EXPLOSION_COLOR_1 = (100, 100, 255, 128)
-    EXPLOSION_COLOR_2 = (50, 50, 255, 128)
+    EXPLOSION_COLOR_1 = (100, 100, 255)
+    EXPLOSION_COLOR_2 = (50, 50, 255)
     BLAST_RADIUS = 5000
-    AUTO_DETONATE_FRAMES = 20
+    FUSE = 20
 
     def __init__(self, x, y):
         super().__init__(x, y)
@@ -542,6 +542,9 @@ while True:
         if bomb.done:
             bombs.remove(bomb)
 
+    if event.type == KEYDOWN and event.key == K_t and timebomb is None:
+        timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
+
     if timebomb is not None and timebomb.done:
         timebomb = None
 
@@ -558,8 +561,13 @@ while True:
     showboostbar(boostleft)
 
     # Render rocket and cookie
-    rocket.draw()
     cookie.draw()
+
+    for bomb in bombs:
+        bomb.draw()
+
+    if timebomb is not None:
+        timebomb.draw()
 
     # Render devils
     i = 0
@@ -567,14 +575,6 @@ while True:
         devil = devils[i]
         devil.draw()
         i += 1
-
-    # Render bombs
-    for bomb in bombs:
-        bomb.draw()
-
-    # Render time bomb
-    if timebomb is not None:
-        timebomb.draw()
 
     rocket.draw()
 
