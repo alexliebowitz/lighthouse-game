@@ -15,7 +15,7 @@ BOOST_BAR_LINE_COLOR = (50, 50, 50)
 BACKGROUND_COLOR = (180, 200, 240)
 PAUSE_BACKGROUND_COLOR = (255, 255, 255)
 FRAMERATE = 60
-DEVILSPEED = 1.2
+DEVILSPEED = 3
 MAX_POINTS = 10
 MAX_SPEED = 10
 BOOST_SPEED = 20
@@ -23,10 +23,8 @@ MIN_BOOST = 20
 MAX_BOOST = 50
 MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
-ROCKET_TRAIL_LENGTH = 50
-ROCKET_TRAIL_START_ALPHA = 255
-ROCKET_TRAIL_FADE_RATE = 1
-
+ROCKET_TRAIL_SPACING = 10
+ROCKET_MAX_TRAIL = 5
 
 pygame.init()
 pygame.mixer.init()
@@ -59,15 +57,13 @@ levelupsound = pygame.mixer.Sound("sounds/omnomnom.ogg")
 
 class Rocket(pygame.sprite.Sprite):
     _frames = None
-
-    # Positions of the copies of the rocket shown in the trail, in the format [(x, y), (x, y), ...]
-    _trailcoords = None
+    _trail = None
 
     def __init__(self):
         super().__init__()
 
         self._frames = 0
-        self._trailcoords = []
+        self._trail = []
 
         self.image = pygame.image.load("images/rocket.png")
         self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
