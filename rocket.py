@@ -25,6 +25,8 @@ MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
 ROCKET_TRAIL_SPACING = 2
 ROCKET_MAX_TRAIL = 5
+ROCKET_TRAIL_START_ALPHA = 255
+ROCKET_TRAIL_FADE_RATE = 0.8
 
 pygame.init()
 pygame.mixer.init()
@@ -68,40 +70,31 @@ class Rocket(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/rocket.png")
         self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
 
-
     def draw_trail_rocket(self, coords, alpha):
         tempsurf = pygame.Surface((self.rect.width, self.rect.height))
         tempsurf.set_colorkey((0, 0, 0))
-
         tempsurf.blit(self.image, (0, 0))
         tempsurf.set_alpha(alpha)
+
         mainsurf.blit(tempsurf, coords)
 
     def draw(self):
         self._frames += 1
 
-        self.image.convert_alpha()
 
-        self.image.set_alpha(0)
+        alpha = ROCKET_TRAIL_START_ALPHA
+        for trailcoord in self._trail:
+            alpha = alpha * ROCKET_TRAIL_FADE_RATE
+            self.draw_trail_rocket(trailcoord, alpha)
 
         mainsurf.blit(self.image, self.rect)
 
-        # Draw trail
-        if self._frames % 10 != 0:
-            has_moved = not self._trailcoords or (self.rect.x, self.rect.y) != self._trailcoords[0]
-            if has_moved:
-                # Add a new rocket to the trail.
-                self._trailcoords.insert(0, (self.rect.x, self.rect.y))
-                if len(self._trailcoords) > ROCKET_TRAIL_LENGTH:
-                    # If the trail has more rockets than the maximum, cut off the end
-                    self._trailcoords = self._trailcoords[:-1]
+        if self._frames % ROCKET_TRAIL_SPACING == 0:
+            self._trail.insert(0, (self.rect.x, self.rect.y))
 
-        alpha = ROCKET_TRAIL_START_ALPHA
-        for trailcoord in self._trailcoords:
-            print("blitting at", trailcoord)
-            alpha = alpha * ROCKET_TRAIL_FADE_RATE
+        if len(self._trail) > ROCKET_MAX_TRAIL:
+            self._trail = self._trail[:-1]
 
-            self.draw_trail_rocket(trailcoord, alpha)
 
 
 
