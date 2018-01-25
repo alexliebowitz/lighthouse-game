@@ -293,10 +293,7 @@ class TimeBomb(Bomb):
         # But don't go below 20, so we can always see some blue
         return max(255 * (1 - ratio_done), 20)
 
-
-    def getspeedmodifier(self):
-        # Used by the main game loop to find out how much the world
-        # should be slowed down. Returns a number from 0 to 1.
+    def get_time_scale(self):
         return 0.3
 
 
@@ -500,43 +497,37 @@ while True:
 
     if rocket.rect.y > HEIGHT - rocket.rect.height:
         rocket.rect.y = HEIGHT - rocket.rect.height
- 
-    ### Update devil positions
+    
 
-    # If there is a time bomb and it's exploding, get the speed modifier
-    # so we can slow down devils that are colliding with it.
-    if timebomb is not None and timebomb.exploding:
-        speedmodifier = timebomb.getspeedmodifier()
+    ### Update devil positions
 
     i = 0
     while i < len(devils): # For each devil...
         # Get the current x and y position for this devil
         devil = devils[i]
 
-        if timebomb is not None and timebomb.exploding and pygame.sprite.collide_circle(timebomb, rocket):
-            # There is time bomb exploding and this devil is colliding with it, so slow down the devil
-            # by multiplying the speed by the modifier returned (for example, if the speed modifier is
-            # 0.5, we go half speed)
-            speed = DEVILSPEED * speedmodifier
-        else:
-            # This devil is not colliding with an exploding time bomb, so use the normal speed.
-            speed = DEVILSPEED
-
         oldx = devil.rect.x
         oldy = devil.rect.y
 
+        # If there is a time bomb and it's exploding, we ask it for a time
+        # scale to find out how much to slow down the world.
+        if timebomb is not None and timebomb.exploding:
+            timescale = timebomb.get_time_scale()
+        else:
+            timescale = 1
+
         # Calculate the *new* x and y position for this devil
         if devil.rect.x > rocket.rect.x:
-            devil.rect.x -= speed
+            devil.rect.x -= DEVILSPEED * timescale
     
         if devil.rect.x < rocket.rect.x:
-            devil.rect.x += speed
+            devil.rect.x += DEVILSPEED * timescale
      
         if devil.rect.y > rocket.rect.y:
-            devil.rect.y -= speed
+            devil.rect.y -= DEVILSPEED * timescale
      
         if devil.rect.y < rocket.rect.y:
-            devil.rect.y += speed
+            devil.rect.y += DEVILSPEED * timescale
 
         devilgroup.remove(devil)
         collidingdevil = pygame.sprite.spritecollideany(devil, devilgroup)
