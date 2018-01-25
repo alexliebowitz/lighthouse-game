@@ -23,7 +23,7 @@ MIN_BOOST = 20
 MAX_BOOST = 50
 MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
-ROCKET_TRAIL_SPACING = 10
+ROCKET_TRAIL_SPACING = 2
 ROCKET_MAX_TRAIL = 5
 
 pygame.init()
@@ -33,7 +33,7 @@ mainfont = pygame.font.SysFont('Helvetica', 25)
 
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
-rocketspeed = 0.6
+rocketspeed = 1
 
 boostmode = False
 boostleft = MAX_BOOST
