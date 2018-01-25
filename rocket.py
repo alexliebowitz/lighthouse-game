@@ -27,6 +27,11 @@ ROCKET_TRAIL_SPACING = 2
 ROCKET_MAX_TRAIL = 5
 ROCKET_TRAIL_START_ALPHA = 255
 ROCKET_TRAIL_FADE_RATE = 0.8
+SHIELD_RADIUS = 40
+SHIELD_SPEED = 15
+SHIELD_COLOR = (128, 200, 128)
+SHIELD_ALPHA = 120
+SHIELD_DURATION = 200
 
 pygame.init()
 pygame.mixer.init()
@@ -95,8 +100,42 @@ class Rocket(pygame.sprite.Sprite):
         if len(self._trail) > ROCKET_MAX_TRAIL:
             self._trail = self._trail[:-1]
 
+class Shield(pygame.sprite.Sprite):
+    _protectsprite = None
+    _frames = None
+    _circlesurf = None
+    radius = None
+    done = False
 
+    def __init__(self, protectsprite):
+        self._frames = 0
+        self.radius = 0
+        self._protectsprite = protectsprite
+        self._circlesurf = pygame.Surface((WIDTH, HEIGHT))
+        self._circlesurf.set_alpha(SHIELD_ALPHA)
+        self._circlesurf.set_colorkey((0, 0, 0))
 
+    def draw(self):
+        self._frames += 1
+
+        if self._frames < SHIELD_DURATION:
+            # Keep growing until we hit the maximum radius
+            if self.radius < SHIELD_RADIUS:
+                self.radius += SHIELD_SPEED
+        else:  # We are past the duration, so shrink the field
+            self.radius -= SHIELD_SPEED
+            if self.radius == 0:
+                self.done = True
+                return
+
+        self._circlesurf.fill((0, 0, 0))
+
+        pygame.draw.circle(self._circlesurf, SHIELD_COLOR,
+                           (self._protectsprite.rect.centerx, self._protectsprite.rect.centery), self.radius)
+
+        mainsurf.blit(self._circlesurf, (0, 0))
+
+        self._frames += 1
 
 class Devil(pygame.sprite.Sprite):
     def __init__(self):
@@ -366,6 +405,7 @@ def showboostbar(boostleft):
 starfield = StarField()
 
 rocket = Rocket()
+shield = None
 cookie = Cookie()
 
 # Create first devil
@@ -580,8 +620,14 @@ while True:
     if event.type == KEYDOWN and event.key == K_t and timebomb is None:
         timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
 
+    if event.type == KEYDOWN and event.key == K_s and shield is None:
+        shield = Shield(rocket)
+
     if timebomb is not None and timebomb.done:
         timebomb = None
+
+    if shield is not None and shield.done:
+        shield = None
 
     if event.type == KEYDOWN and event.key == K_t and timebomb is None:  # Drop a time bomb
         timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
@@ -612,5 +658,7 @@ while True:
         i += 1
 
     rocket.draw()
+    if shield is not None:
+        shield.draw()
 
     pygame.display.update()
