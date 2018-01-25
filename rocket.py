@@ -23,7 +23,7 @@ MIN_BOOST = 20
 MAX_BOOST = 50
 MAIN_COLOR = (255, 0, 0)
 STAR_COLOR = (255, 255, 255)
-ROCKET_TRAIL_SPACING = 2
+ROCKET_TRAIL_SPACING = 1
 ROCKET_MAX_TRAIL = 5
 ROCKET_TRAIL_START_ALPHA = 255
 ROCKET_TRAIL_FADE_RATE = 0.8
@@ -269,7 +269,7 @@ class Bomb(pygame.sprite.Sprite):
             pygame.draw.circle(self._circlesurf, color, (self.rect.centerx, self.rect.centery), self.radius)
             mainsurf.blit(self._circlesurf, (0, 0))
         else:
-            # We are past the radius, so we do not draw, and we set self.done to True
+            # We are past the radius, so we do not draw, and we set this.done to True
             # so the main game loop knows it can remove this from the list of bombs.
             self.done = True
 
@@ -295,6 +295,7 @@ class TimeBomb(Bomb):
 
     def get_time_scale(self):
         return 0.3
+
 
 
 class StarField(pygame.sprite.Sprite):
