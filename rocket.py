@@ -640,8 +640,12 @@ while True:
     showscore(score)
     showboostbar(boostleft)
 
-    # Render rocket and cookie
-    cookie.draw()
+    # Render devils
+    i = 0
+    while i < len(devils):
+        devil = devils[i]
+        devil.draw()
+        i += 1
 
     for bomb in bombs:
         bomb.draw()
@@ -649,12 +653,8 @@ while True:
     if timebomb is not None:
         timebomb.draw()
 
-    # Render devils
-    i = 0
-    while i < len(devils):
-        devil = devils[i]
-        devil.draw()
-        i += 1
+    # Render rocket and cookie
+    cookie.draw()
 
     rocket.draw()
 
