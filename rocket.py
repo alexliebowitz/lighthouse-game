@@ -46,7 +46,7 @@ rocketspeed = 1
 boostmode = False
 boostleft = MAX_BOOST
 
-devils = []
+devilgroup = pygame.sprite.Group()
 bombs = []
 timebomb = None
 
@@ -56,7 +56,6 @@ paused = False
 gamewon = False
 gamelost = False
 
-devilgroup = pygame.sprite.Group()
 
 winsound = pygame.mixer.Sound("sounds/winscreen.wav")
 losesound = pygame.mixer.Sound("sounds/sadtrombone.wav")
@@ -150,11 +149,6 @@ class Shield(pygame.sprite.Sprite):
         pygame.draw.circle(self._circlesurf, SHIELD_COLOR,
                            (self.rect.centerx, self.rect.centery), self.radius)
         mainsurf.blit(self._circlesurf, (0, 0))
-
-
-
-
-
 
 class Devil(pygame.sprite.Sprite):
     def __init__(self):
@@ -426,7 +420,7 @@ cookie = Cookie()
 shield = None
 
 # Create first devil
-devils.append(Devil())
+devilgroup.add(Devil())
 while True:
     event = pygame.event.poll()     
  
@@ -521,11 +515,8 @@ while True:
 
     ### Update devil positions
 
-    i = 0
-    while i < len(devils): # For each devil...
+    for devil in devilgroup.sprites().copy(): # For each devil...
         # Get the current x and y position for this devil
-        devil = devils[i]
-
         oldx = devil.rect.x
         oldy = devil.rect.y
 
@@ -558,8 +549,6 @@ while True:
             devil.rect.x = oldx
             devil.rect.y = oldy
 
-        i += 1
-
     if event.type == KEYDOWN and event.key == K_d:
         for bomb in bombs:
             bomb.detonate()
@@ -567,14 +556,10 @@ while True:
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
     # Check if the rocket is colliding with any of the devils. If so, we lost
-    i = 0
-    while i < len(devils):
-        devil = devils[i]
-
+    for devil in devilgroup:
         if rocket.rect.colliderect(devil.rect):
             gamelost = True
             break
-        i += 1
 
     if gamelost:
         losesound.play()
@@ -587,10 +572,9 @@ while True:
             gamelost = True
             continue
 
-        for devil in list(devils):
+        for devil in devilgroup:
             # If a devil is colliding with an exploding bomb, it goes bye-bye
             if bomb.exploding and pygame.sprite.collide_circle(bomb, devil):
-                devils.remove(devil)
                 devilgroup.remove(devil)
 
     if event.type == KEYDOWN and event.key == K_d:
@@ -614,10 +598,10 @@ while True:
             cookie = Cookie()
             if score == MAX_POINTS:  # Final level
                 devilgroup.empty()
-                devils = [BossDevil()]
+                devilgroup.add(BossDevil())
             else:
                 for i in range(score):
-                    devils.append(Devil())
+                    devilgroup.add(Devil())
             levelupsound.play()
 
     if event.type == KEYUP and event.key == K_RETURN:  # Drop a bomb
@@ -688,11 +672,8 @@ while True:
     showboostbar(boostleft)
 
     # Render devils
-    i = 0
-    while i < len(devils):
-        devil = devils[i]
+    for devil in devilgroup:
         devil.draw()
-        i += 1
 
     for bomb in bombs:
         bomb.draw()
