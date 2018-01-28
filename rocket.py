@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 from pygame.locals import *
 
@@ -122,6 +123,12 @@ class Shield(pygame.sprite.Sprite):
         self._circlesurf.set_alpha(SHIELD_ALPHA)
         self._circlesurf.set_colorkey((0, 0, 0))
 
+        # We set the self.rect to to match the rocket's rectangle.
+        # Height and width don't matter, because as long as we
+        # provide a .radius Pygame will use that for collision
+        # detection.
+        self.rect = rocket.rect.copy()
+
     def draw(self):
         self._frames += 1
         if self._frames <= SHIELD_DURATION:
@@ -135,8 +142,13 @@ class Shield(pygame.sprite.Sprite):
 
         self._circlesurf.fill((0, 0, 0))
 
+        self.rect.width = self.radius * 2
+        self.rect.height = self.radius * 2
+        self.rect.centerx = self._rocket.rect.centerx
+        self.rect.centery = self._rocket.rect.centery
+
         pygame.draw.circle(self._circlesurf, SHIELD_COLOR,
-                           (self._rocket.rect.centerx, self._rocket.rect.centery), self.radius)
+                           (self.rect.centerx, self.rect.centery), self.radius)
         mainsurf.blit(self._circlesurf, (0, 0))
 
 
@@ -622,13 +634,48 @@ while True:
     if timebomb is not None and timebomb.done:
         timebomb = None
 
-    if shield is not None and shield.done:
-        shield = None
+    if shield is not None:
+        if shield.done:
+            shield = None
+        else:
+            for devil in devilgroup:
+                if pygame.sprite.collide_circle(devil, shield):
+                    # OK, we need to move the devil outward past the edge of the shield.
+
+                    # Get the difference between this devil and the center of the shield along
+                    # the x and y axes. You can also think of this as a vector of the two numbers
+                    # "dx" and "dy"
+                    dx = devil.rect.centerx - shield.rect.centerx
+                    dy = devil.rect.centery - shield.rect.centery
+
+                    # Convert the difference along the x and y axis to a distance (you can also think of this
+                    # as the length of a vector)
+                    len_xy = math.sqrt(dx**2 + dy**2)
+
+                    # Divide each component of the vector by the length so it is "normalized"
+                    # to a number between 0 and 1.
+                    if len_xy == 0:
+                        # Don't want to divide by 0
+                        dx_normalized = dy_normalized = 0
+                    else:
+                        dx_normalized = dx / len_xy
+                        dy_normalized = dy / len_xy
+
+                    # We will push the devil out just enough to get it to the edge --
+                    # we start with the radius of the shield, then subtract the distance
+                    # of the devil from the center. We also add 5 pixels as a "fudge factor"
+                    # so it's not sitting right on the edge.
+                    pushdistance = shield.radius - len_xy + 5
+
+                    # Add the appropriate distance to each dimension, multiplying by the normalized
+                    # vector from before to make sure it goes out at the same angle.
+                    devil.rect.centerx += dx_normalized * pushdistance
+                    devil.rect.centery += dy_normalized * pushdistance
 
     if event.type == KEYDOWN and event.key == K_t and timebomb is None:  # Drop a time bomb
         timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
 
-    if event.type == KEYDOWN and event.key == K_s and shield is None:
+    if event.type == KEYDOWN and event.key == K_s and shield is None:  # Put up shield
         shield = Shield(rocket)
 
 
