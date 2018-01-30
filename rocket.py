@@ -338,6 +338,28 @@ class StarField(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self.rect)
 
+def randomdirection(maxdist=10):
+    # Return a vector we can use to push an object in a random
+    # direction. For example, if we return (-5, -5), that means
+    # push the object 5 pixels up and to the left.
+
+    # We're going to pick a random point around a unit circle.
+    # First, we need to pick a number from -1 to 1 to choose
+    # where to sample from the circle along the x dimension.
+
+    x = random.uniform(-1, 1)
+
+    # Now for any x dimension, there are 2 possible
+    # points along the y dimension: the top or the bottom.
+    y = math.sqrt(1 - x**2)
+
+    if random.choice([True, False]):
+        y *= -1
+
+    distance = random.randint(0, maxdist)
+
+    return (x * distance, y * distance)
+
 def winscreen():
     mainsurf.fill(BACKGROUND_COLOR)
  
@@ -516,10 +538,6 @@ while True:
     ### Update devil positions
 
     for devil in devilgroup.sprites().copy(): # For each devil...
-        # Get the current x and y position for this devil
-        oldx = devil.rect.x
-        oldy = devil.rect.y
-
         # If there is a time bomb and it's exploding, we ask it for a time
         # scale to find out how much to slow down the world.
         if timebomb is not None and timebomb.exploding:
@@ -546,8 +564,9 @@ while True:
 
 
         if collidingdevil is not None:
-            devil.rect.x = oldx
-            devil.rect.y = oldy
+            dirx, diry = randomdirection()
+            devil.rect.x += dirx
+            devil.rect.y += diry
 
     if event.type == KEYDOWN and event.key == K_d:
         for bomb in bombs:
