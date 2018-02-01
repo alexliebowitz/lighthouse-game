@@ -17,7 +17,7 @@ BACKGROUND_COLOR = (180, 200, 240)
 PAUSE_BACKGROUND_COLOR = (255, 255, 255)
 FRAMERATE = 60
 DEVILSPEED = 3
-MAX_POINTS = 10
+LEVELS = 10
 MAX_SPEED = 10
 BOOST_SPEED = 20
 MIN_BOOST = 20
@@ -50,7 +50,7 @@ devilgroup = pygame.sprite.Group()
 bombs = []
 timebomb = None
 
-score = 0
+level = 0
 
 paused = False
 gamewon = False
@@ -381,8 +381,8 @@ def pausescreen():
 
     mainsurf.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
  
-def showscore(score):
-    textsurf = mainfont.render(str(score), True, MAIN_COLOR)
+def showscore(level):
+    textsurf = mainfont.render(str(level), True, MAIN_COLOR)
     mainsurf.blit(textsurf, (WIDTH - 50, 50))
 
 def showboostbar(boostleft):
@@ -607,19 +607,19 @@ while True:
  
     # Check if the rocket is colliding with the cookie
     if rocket.rect.colliderect(cookie.rect):
-        score += 1
+        level += 1
 
-        if score > MAX_POINTS:  # We won
+        if level >= LEVELS:  # We won
             gamewon = True
             winsound.play()
             continue
         else:
             cookie = Cookie()
-            if score == MAX_POINTS:  # Final level
+            if level == LEVELS:  # Final level
                 devilgroup.empty()
                 devilgroup.add(BossDevil())
             else:
-                for i in range(score):
+                for i in range(level - 1):
                     devilgroup.add(Devil())
             levelupsound.play()
 
@@ -687,7 +687,7 @@ while True:
 
     starfield.draw()
 
-    showscore(score)
+    showscore(level)
     showboostbar(boostleft)
 
     # Render devils
