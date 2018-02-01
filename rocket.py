@@ -227,6 +227,41 @@ class Item(pygame.sprite.Sprite):
 class Cookie(Item):
     IMAGE_FILE = "cookie.png"
 
+
+class Powerup(Item):
+    NAME = None
+    state = None
+    _sound = None
+
+    def __init__(self):
+        super().__init__()
+
+        self._sound = pygame.mixer.Sound("sounds/powerup.wav")
+        self.state = 'notdropped'
+
+    def drop(self):
+        self.state = 'onscreen'
+
+    def collect(self):
+        self.state = 'collected'
+        self._sound.play()
+
+
+class ShieldPowerup(Powerup):
+    IMAGE_FILE = "shield_powerup.png"
+    NAME = 'shield'
+
+
+class BombPowerup(Powerup):
+    IMAGE_FILE = "bomb_powerup.png"
+    NAME = 'bomb'
+
+
+class TimeBombPowerup(Powerup):
+    IMAGE_FILE = "time_bomb_powerup.png"
+    NAME = 'timebomb'
+
+
 class Bomb(pygame.sprite.Sprite):
     BLAST_RADIUS = 300
     EXPLOSION_COLOR_1 = (255, 255, 255)
@@ -446,6 +481,12 @@ def showboostbar(boostleft):
     lineheight = barheight
 
     pygame.draw.rect(mainsurf, BOOST_BAR_LINE_COLOR, (linex, liney, linewidth, lineheight))
+
+powerups = {
+    'bomb': BombPowerup(),
+    'shield': ShieldPowerup(),
+    'timebomb': TimeBombPowerup(),
+}
 
 starfield = StarField()
 
@@ -708,6 +749,10 @@ while True:
 
     for bomb in bombs:
         bomb.draw()
+
+    for name, powerup in powerups.items():
+        if powerup.state == 'onscreen':
+            powerup.draw()
 
     if timebomb is not None:
         timebomb.draw()
