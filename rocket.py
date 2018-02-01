@@ -687,7 +687,7 @@ while True:
                     devilgroup.add(Devil())
             levelupsound.play()
 
-    if event.type == KEYUP and event.key == K_RETURN:  # Drop a bomb
+    if event.type == KEYUP and event.key == K_RETURN and powerups['bomb'].state == 'collected':  # Drop a bomb
         bombs.append(Bomb(rocket.rect.x, rocket.rect.y))
 
     # Clear out bombs that have finished detonating
@@ -695,7 +695,8 @@ while True:
         if bomb.done:
             bombs.remove(bomb)
 
-    if event.type == KEYDOWN and event.key == K_t and timebomb is None:
+    if (event.type == KEYDOWN and event.key == K_t and powerups['timebomb'].state == 'collected'
+        and timebomb is None):
         timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
 
     if timebomb is not None and timebomb.done:
@@ -739,10 +740,8 @@ while True:
                     devil.rect.centerx += dx_normalized * pushdistance
                     devil.rect.centery += dy_normalized * pushdistance
 
-    if event.type == KEYDOWN and event.key == K_t and timebomb is None:  # Drop a time bomb
-        timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
-
-    if event.type == KEYDOWN and event.key == K_s and shield is None:  # Put up shield
+    if (event.type == KEYDOWN and event.key == K_s and powerups['shield'].state == 'collected'
+        and shield is None):  # Put up shield
         shield = Shield(rocket)
 
 
