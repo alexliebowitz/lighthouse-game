@@ -667,6 +667,11 @@ while True:
             winsound.play()
             continue
         else:
+            # If we're on a level that has a powerup, drop the powerup
+            if level in LEVEL_TO_POWERUP:
+                powerupname = LEVEL_TO_POWERUP[level]
+                powerups[powerupname].drop()
+
             cookie = Cookie()
             if level == LEVELS:  # Final level
                 devilgroup.empty()
