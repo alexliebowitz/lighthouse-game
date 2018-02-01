@@ -625,6 +625,12 @@ while True:
         for bomb in bombs:
             bomb.detonate()
 
+    for powerup in powerups.values():
+        if powerup.state == 'onscreen' and rocket.rect.colliderect(powerup.rect):
+            # We are colliding with this powerup and it hasn't been collected
+            # already, so collect it.
+            powerup.collect()
+
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
     # Check if the rocket is colliding with any of the devils. If so, we lost
