@@ -211,15 +211,21 @@ class BossDevil(Devil):
 
         mainsurf.blit(self.image, self.rect)
 
-class Cookie(pygame.sprite.Sprite):
+class Item(pygame.sprite.Sprite):
+    IMAGE_FILE = None
+
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("images/cookie.png")
+        self.image = pygame.image.load('images/' + self.IMAGE_FILE)
         self.rect = pygame.rect.Rect((random.randint(15, WIDTH - 15), random.randint(15, HEIGHT - 15)), self.image.get_size())
 
     def draw(self):
         mainsurf.blit(self.image, self.rect)
+
+
+class Cookie(Item):
+    IMAGE_FILE = "cookie.png"
 
 class Bomb(pygame.sprite.Sprite):
     BLAST_RADIUS = 300
