@@ -33,6 +33,12 @@ SHIELD_ALPHA = 120
 SHIELD_DURATION = 200
 SHIELD_MAX = 40
 SHIELD_SPEED = 15
+LEVEL_TO_POWERUP = {
+    2: 'bomb',
+    4: 'shield',
+    6: 'timebomb'
+}
+
 
 pygame.init()
 pygame.mixer.init()
