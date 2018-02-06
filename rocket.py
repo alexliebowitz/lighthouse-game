@@ -232,11 +232,15 @@ class Powerup(Item):
     NAME = None
     state = None
     _sound = None
+    _frames = None
+    _blinker = None
 
     def __init__(self):
         super().__init__()
 
         self._sound = pygame.mixer.Sound("sounds/powerup.wav")
+        self._frames = 0
+
         self.state = 'notdropped'
 
     def drop(self):
@@ -245,6 +249,18 @@ class Powerup(Item):
     def collect(self):
         self.state = 'collected'
         self._sound.play()
+
+    def draw(self):
+        if self._frames <= 30 and self._frames % 3 == 0:
+            self._blinker = not self._blinker
+        elif self._frames == 30:
+            self._blinker = True
+
+        if self._blinker:
+            mainsurf.blit(self.image, self.rect)
+
+        self._frames += 1
+
 
 
 class ShieldPowerup(Powerup):
