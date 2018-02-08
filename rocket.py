@@ -62,11 +62,71 @@ paused = False
 gamewon = False
 gamelost = False
 
-
 winsound = pygame.mixer.Sound("sounds/winscreen.wav")
 losesound = pygame.mixer.Sound("sounds/sadtrombone.wav")
 levelupsound = pygame.mixer.Sound("sounds/omnomnom.ogg")
 
+class Screen(pygame.sprite.Sprite):
+    BACKDROP_COLOR = (0, 0, 0)
+    BACKDROP_ALPHA = 60
+
+    image = None
+    _backdrop = None
+    _game_image = None
+    _content = None
+
+    def __init__(self):
+        self.image = pygame.Surface((WIDTH, HEIGHT))
+
+        self._game_image = mainsurf.copy()
+
+        self._backdrop = pygame.Surface((WIDTH, HEIGHT))
+        self._backdrop.fill(self.BACKDROP_COLOR)
+        self._backdrop.set_alpha(self.BACKDROP_ALPHA)
+
+        self._content = pygame.Surface((WIDTH, HEIGHT))
+        self._content.set_colorkey((0, 0, 0))
+
+    def draw(self):
+        self.image.fill((0, 0, 0))
+        self.image.blit(self._game_image, (0, 0))
+        self.image.blit(self._backdrop, (0, 0))
+        self.image.blit(self._content, (0, 0))
+        mainsurf.blit(self.image, (0, 0))
+        #self._content.fill((0, 0, 0))
+
+
+class WinScreen(Screen):
+    BACKDROP_COLOR = (90, 90, 255)
+
+    def draw(self):
+        textsurf = mainfont.render('YOU WON', True, MAIN_COLOR)
+        #self.image.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
+        #mainsurf.blit(self.image, (0, 0))
+
+class LoseScreen(Screen):
+    BACKDROP_COLOR = (255, 0, 0)
+
+    def draw(self):
+        textsurf = mainfont.render('YOU LOST', True, MAIN_COLOR)        
+        self._content.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
+        super().draw()
+
+
+class PauseScreen(Screen):
+    BACKDROP_COLOR = (50, 100, 50)
+
+    def draw(self):
+        super().draw()
+
+        backdrop = mainsurf.copy()
+        backdrop.fill(self.BACKDROP_COLOR)
+        #backdrop.set_alpha(self.BACKDROP_ALPHA)
+
+        self.image.blit(backdrop, (0, 0))
+        textsurf = mainfont.render('PAUSED', True, MAIN_COLOR)        
+        self.image.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
+        mainsurf.blit(self.image, (0, 0))
 
 class Rocket(pygame.sprite.Sprite):
     _frames = None
@@ -502,7 +562,12 @@ powerups = {
     'bomb': BombPowerup(),
     'shield': ShieldPowerup(),
     'timebomb': TimeBombPowerup(),
+    'stealthmode': StealthModePowerup(),
 }
+
+winscreen = None
+losescreen = None
+pausescreen = None
 
 starfield = StarField()
 
@@ -517,23 +582,31 @@ while True:
  
     if event.type == QUIT:
         exit()
- 
-    if gamewon:
-        winscreen()
-        pygame.display.update()
-        continue
- 
-    if gamelost:
-        losescreen()
-        pygame.display.update()
-        continue
 
     if event.type == KEYUP and event.key == K_ESCAPE:  # If the player just pressed escape...
         paused = not paused  # Flip paused state
 
-    # If the game is paused, display the pause screen and skip everything else
+    if gamewon:
+        if winscreen is None:
+            winscreen = WinScreen()
+
+        winscreen.draw()
+        pygame.display.update()
+        continue
+
+    if gamelost:
+        if losescreen is None:
+            losescreen = LoseScreen()
+
+        losescreen.draw()
+        pygame.display.update()
+        continue
+
     if paused:
-        pausescreen()
+        if pausescreen is not None:
+            losescreen = LoseScreen()
+
+        pausescreen.draw()
         pygame.display.update()
         continue
 
