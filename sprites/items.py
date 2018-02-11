@@ -1,4 +1,10 @@
-class Item(pygame.sprite.Sprite):
+import pygame
+import random
+from constants import *
+
+from sprites.gamesprite import GameSprite
+
+class Item(GameSprite):
     IMAGE_FILE = None
 
     def __init__(self):
@@ -9,7 +15,7 @@ class Item(pygame.sprite.Sprite):
 
 
     def draw(self):
-        mainsurf.blit(self.image, self.rect)
+        self._mainsurf.blit(self.image, self.rect)
 
 
 class Cookie(Item):
@@ -49,9 +55,9 @@ class Powerup(Item):
                 self._blinker = not self._blinker
 
             if self._blinker:
-                mainsurf.blit(self.image, self.rect)
+                self._mainsurf.blit(self.image, self.rect)
         else:
-            mainsurf.blit(self.image, self.rect)
+            self._mainsurf.blit(self.image, self.rect)
 
 
 class BombPowerup(Powerup):

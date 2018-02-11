@@ -5,6 +5,7 @@ import random
 from pygame.locals import *
 
 from sprites.screens import WinScreen, LoseScreen, PauseScreen
+from sprites.items import BombPowerup, TimeBombPowerup, ShieldPowerup, Cookie
 
 from constants import *
 
