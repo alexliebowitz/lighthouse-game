@@ -131,9 +131,10 @@ class LoseScreen(Screen):
 
     def draw(self):
         textsurf = mainfont.render("YOU LOST", True, self.CONTENT_COLOR)
-        self._content.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
-        super().draw()
+        textrect = textsurf.get_rect(center=mainsurf.get_rect().center)
 
+        self._content.blit(textsurf, textrect)
+        super().draw()
 
 
 class Rocket(pygame.sprite.Sprite):
