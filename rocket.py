@@ -125,6 +125,18 @@ class Screen(pygame.sprite.Sprite):
         self.image.blit(self._content, (0, 0))
         mainsurf.blit(self.image, (0, 0))
 
+class WinScreen(Screen):
+    BACKDROP_COLOR = (255, 255, 255)
+    BACKDROP_ALPHA = 255
+    CONTENT_COLOR = (0, 100, 0)
+
+    def draw(self):
+        textsurf = mainfont.render('YOU WON', True, self.CONTENT_COLOR)
+        textrect = textsurf.get_rect(center=mainsurf.get_rect().center)
+
+        self._content.blit(textsurf, textrect)
+        super().draw()
+
 class LoseScreen(Screen):
     BACKDROP_COLOR = (150, 0, 0)
     CONTENT_COLOR = (230, 230, 230)
@@ -472,13 +484,6 @@ class StarField(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self.rect)
 
-def winscreen():
-    mainsurf.fill(BACKGROUND_COLOR)
- 
-    textsurf = mainfont.render('YOU WON', True, MAIN_COLOR)
- 
-    mainsurf.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
-
 def pausescreen():
     mainsurf.fill(PAUSE_BACKGROUND_COLOR)
 
@@ -564,7 +569,9 @@ while True:
         exit()
  
     if gamewon:
-        winscreen()
+        if winscreen is None:
+            winscreen = WinScreen()
+        winscreen.draw()
         pygame.display.update()
         continue
 
