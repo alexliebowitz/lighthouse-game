@@ -46,6 +46,8 @@ losescreen = None
 winscreen = None
 pausescreen = None
 
+levelindicator = LevelIndicator(level)
+
 powerups = {
     'bomb': BombPowerup(),
     'shield': ShieldPowerup(),
@@ -256,6 +258,7 @@ while True:
     if rocket.rect.colliderect(cookie.rect):
         # Time to level up!
         level += 1
+        levelindicator.setlevel(level)
 
         if level > MAX_POINTS:  # We won
             gamewon = True

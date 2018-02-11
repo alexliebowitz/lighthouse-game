@@ -1,30 +1,24 @@
-def showlevel(level):
-    textsurf = mainfont.render(str(level), True, MAIN_COLOR)
-    mainsurf.blit(textsurf, (WIDTH - 50, 50))
+import pygame
 
-def showboostbar(boostleft):
-    width = (boostleft / MAX_BOOST) * BOOST_BAR_WIDTH
+from constants import *
+from .gamesprite import GameSprite
 
-    if boostleft < MIN_BOOST:
-        color = BOOST_BAR_COLOR_DEPLETED
-    else:
-        color = BOOST_BAR_COLOR
+class LevelIndicator(GameSprite):
+    _level = None
+    _font = None
 
-    # The x position of the bar is the width of the screen, minus the width of the bar
-    # (so it doesn't go off the screen), minus another 30px so it's not right up
-    # against the edge of the screen.
-    barx = WIDTH - BOOST_BAR_WIDTH - 30
+    def __init__(self, level):
+        super().__init__()
 
-    # y position is 20px (just a little bit of padding so it's not right at the top)
-    bary = 20
+        self._level = level
+        self._font = pygame.font.SysFont(MAIN_FONT, MAIN_FONT_SIZE)
 
-    # The width of the bar is the percentage of boost that we have left, times the width
-    # of the full bar. So if we're at 50% boost and the full bar is 150 pixels, then
-    # we display a bar 75 pixels wide.
-    barwidth = (boostleft / MAX_BOOST) * BOOST_BAR_WIDTH
+    def setlevel(self, level):
+        self._level = level
 
-    # The height is just a constant
-    barheight = BOOST_BAR_HEIGHT
+    def draw(self):
+        textsurf = self._font.render(str(self._level), True, MAIN_COLOR)
+        self._mainsurf.blit(textsurf, (WIDTH - 50, 50))
 
     # Time to draw the bar!
     pygame.draw.rect(mainsurf, color, (barx, bary, barwidth, barheight))
