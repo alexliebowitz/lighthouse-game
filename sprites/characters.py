@@ -1,4 +1,11 @@
-class Rocket(pygame.sprite.Sprite):
+import pygame
+import random
+
+from .gamesprite import GameSprite
+
+from constants import *
+
+class Rocket(GameSprite):
     _frames = None
     _trail = None
 
@@ -9,15 +16,17 @@ class Rocket(pygame.sprite.Sprite):
         self._trail = []
 
         self.image = pygame.image.load("images/rocket.png")
-        self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
+
+        self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
+        self.rect.center = (WIDTH / 2, HEIGHT / 2)
 
     def draw_trail_rocket(self, coords, alpha):
-        tempsurf = pygame.Surface((self.rect.width, self.rect.height))
+        tempsurf = pygame.Surface((WIDTH, HEIGHT))
         tempsurf.set_colorkey((0, 0, 0))
         tempsurf.blit(self.image, (0, 0))
         tempsurf.set_alpha(alpha)
 
-        mainsurf.blit(tempsurf, coords)
+        self._mainsurf.blit(tempsurf, coords)
 
     def draw(self):
         self._frames += 1
@@ -38,10 +47,10 @@ class Rocket(pygame.sprite.Sprite):
 
         # Blit rocket
 
-        mainsurf.blit(self.image, self.rect)
+        self._mainsurf.blit(self.image, self.rect)
 
 
-class Devil(pygame.sprite.Sprite):
+class Devil(GameSprite):
     def __init__(self):
         super().__init__()
 
@@ -63,10 +72,8 @@ class Devil(pygame.sprite.Sprite):
 
         self.rect = pygame.rect.Rect((x, y), self.image.get_size())
 
-        devilgroup.add(self)
-
     def draw(self):
-        mainsurf.blit(self.image, self.rect)
+        self._mainsurf.blit(self.image, self.rect)
 
 
 class BossDevil(Devil):
@@ -80,9 +87,8 @@ class BossDevil(Devil):
         self._inverted = False
 
         self.image = pygame.image.load('images/boss.png')
-        self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
-
-        devilgroup.add(self)
+        self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
+        self.rect.center = (WIDTH / 2, HEIGHT / 2)
 
     def draw(self):
         self._framecounter += 1
@@ -95,4 +101,4 @@ class BossDevil(Devil):
             else:
                 self.image = self._normalimage
 
-        mainsurf.blit(self.image, self.rect)
+        self._mainsurf.blit(self.image, self.rect)

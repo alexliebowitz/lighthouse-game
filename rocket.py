@@ -5,6 +5,7 @@ import random
 from pygame.locals import *
 
 from utils import randomdirection
+from sprites.characters import Rocket, Devil, BossDevil
 from sprites.screens import WinScreen, LoseScreen, PauseScreen
 from sprites.items import BombPowerup, TimeBombPowerup, ShieldPowerup, Cookie
 
@@ -488,6 +489,7 @@ while True:
                 devils = [BossDevil()]
             else:
                 for i in range(level):
+                    devilgroup.add(Devil())
                     devils.append(Devil())
             levelupsound.play()
 
