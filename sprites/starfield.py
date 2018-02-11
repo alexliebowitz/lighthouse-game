@@ -1,4 +1,10 @@
-class StarField(pygame.sprite.Sprite):
+import pygame
+import random
+
+from .gamesprite import GameSprite
+from constants import *
+
+class StarField(GameSprite):
     def __init__(self):
         super().__init__()
 
@@ -23,4 +29,4 @@ class StarField(pygame.sprite.Sprite):
             y += 1
 
     def draw(self):
-        mainsurf.blit(self.image, self.rect)
+        self._mainsurf.blit(self.image, self.rect)
