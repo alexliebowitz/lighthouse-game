@@ -1,6 +1,6 @@
 import pygame
-import random
 import math
+import random
 
 from pygame.locals import *
 
@@ -17,7 +17,7 @@ BACKGROUND_COLOR = (180, 200, 240)
 PAUSE_BACKGROUND_COLOR = (255, 255, 255)
 FRAMERATE = 60
 DEVILSPEED = 3
-LEVELS = 10
+MAX_POINTS = 10
 MAX_SPEED = 10
 BOOST_SPEED = 20
 MIN_BOOST = 20
@@ -33,6 +33,7 @@ SHIELD_ALPHA = 120
 SHIELD_DURATION = 200
 SHIELD_MAX = 40
 SHIELD_SPEED = 15
+COLLIDE_PUSH_RADIUS = 5
 LEVEL_TO_POWERUP = {
     2: 'bomb',
     4: 'shield',
@@ -52,33 +53,64 @@ rocketspeed = 1
 boostmode = False
 boostleft = MAX_BOOST
 
-devilgroup = pygame.sprite.Group()
+devils = []
 bombs = []
 timebomb = None
 
-level = 0
+level = 1
 
 paused = False
 gamewon = False
 gamelost = False
 
+devilgroup = pygame.sprite.Group()
+
 winsound = pygame.mixer.Sound("sounds/winscreen.wav")
 losesound = pygame.mixer.Sound("sounds/sadtrombone.wav")
 levelupsound = pygame.mixer.Sound("sounds/omnomnom.ogg")
 
-class Screen(pygame.sprite.Sprite):
-    BACKDROP_COLOR = (0, 0, 0)
-    BACKDROP_ALPHA = 60
 
-    image = None
+def randomdirection(maxdist=10):
+    # Return a vector we can use to push an object in a random
+    # direction. For example, if we return (-5, -5), that means
+    # push the object 5 pixels up and to the left.
+
+    # We're going to pick a random point around a unit circle.
+    # First, we need to pick a number from -1 to 1 to choose
+    # where to sample from the circle along the x dimension.
+
+    x = random.uniform(-1, 1)
+
+    # Use the circle formula to get the y position of the circle
+    # for this value of x.
+    y = math.sqrt(1 - x**2)
+
+    # Now for any x dimension, there are actually *2* possible
+    # points along the y dimension: the top or the bottom.
+    # math.sqrt only returns a positive number, so randomly
+    # flip y to the bottom 50% of the time.
+    if random.choice([True, False]):
+        y *= -1
+
+    distance = random.randint(0, maxdist)
+
+    return (x * distance, y * distance)
+
+class Screen(pygame.sprite.Sprite):
+    BACKDROP_COLOR = None
+    BACKDROP_ALPHA = 60
+    CONTENT_COLOR = None
+
+    _snapshot = None
     _backdrop = None
-    _game_image = None
     _content = None
 
     def __init__(self):
+        super().__init__()
+
         self.image = pygame.Surface((WIDTH, HEIGHT))
 
-        self._game_image = mainsurf.copy()
+        self._snapshot = mainsurf.copy()
 
         self._backdrop = pygame.Surface((WIDTH, HEIGHT))
         self._backdrop.fill(self.BACKDROP_COLOR)
@@ -88,45 +120,21 @@ class Screen(pygame.sprite.Sprite):
         self._content.set_colorkey((0, 0, 0))
 
     def draw(self):
-        self.image.fill((0, 0, 0))
-        self.image.blit(self._game_image, (0, 0))
+        self.image.blit(self._snapshot, (0, 0))
         self.image.blit(self._backdrop, (0, 0))
         self.image.blit(self._content, (0, 0))
         mainsurf.blit(self.image, (0, 0))
-        #self._content.fill((0, 0, 0))
-
-
-class WinScreen(Screen):
-    BACKDROP_COLOR = (90, 90, 255)
-
-    def draw(self):
-        textsurf = mainfont.render('YOU WON', True, MAIN_COLOR)
-        #self.image.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
-        #mainsurf.blit(self.image, (0, 0))
 
 class LoseScreen(Screen):
-    BACKDROP_COLOR = (255, 0, 0)
+    BACKDROP_COLOR = (150, 0, 0)
+    CONTENT_COLOR = (230, 230, 230)
 
     def draw(self):
-        textsurf = mainfont.render('YOU LOST', True, MAIN_COLOR)        
+        textsurf = mainfont.render("YOU LOST", True, self.CONTENT_COLOR)
         self._content.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
         super().draw()
 
 
-class PauseScreen(Screen):
-    BACKDROP_COLOR = (50, 100, 50)
-
-    def draw(self):
-        super().draw()
-
-        backdrop = mainsurf.copy()
-        backdrop.fill(self.BACKDROP_COLOR)
-        #backdrop.set_alpha(self.BACKDROP_ALPHA)
-
-        self.image.blit(backdrop, (0, 0))
-        textsurf = mainfont.render('PAUSED', True, MAIN_COLOR)        
-        self.image.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
-        mainsurf.blit(self.image, (0, 0))
 
 class Rocket(pygame.sprite.Sprite):
     _frames = None
@@ -184,15 +192,15 @@ class Shield(pygame.sprite.Sprite):
         self._rocket = rocket
         self.done = False
 
+        # We set the self.rect to to match the rocket's rectangle.
+        # Height and width don't matter, because as long as we
+        # provide a .radius, Pygame will use that for collision
+        # detection.
+        self.rect = rocket.rect.copy()
+
         self._circlesurf = pygame.Surface((WIDTH, HEIGHT))
         self._circlesurf.set_alpha(SHIELD_ALPHA)
         self._circlesurf.set_colorkey((0, 0, 0))
-
-        # We set the self.rect to to match the rocket's rectangle.
-        # Height and width don't matter, because as long as we
-        # provide a .radius Pygame will use that for collision
-        # detection.
-        self.rect = rocket.rect.copy()
 
     def draw(self):
         self._frames += 1
@@ -205,15 +213,13 @@ class Shield(pygame.sprite.Sprite):
                 self.done = True
                 return
 
-        self._circlesurf.fill((0, 0, 0))
-
-        self.rect.width = self.radius * 2
-        self.rect.height = self.radius * 2
         self.rect.centerx = self._rocket.rect.centerx
         self.rect.centery = self._rocket.rect.centery
 
+        self._circlesurf.fill((0, 0, 0))
+
         pygame.draw.circle(self._circlesurf, SHIELD_COLOR,
-                           (self.rect.centerx, self.rect.centery), self.radius)
+                           (self._rocket.rect.centerx, self._rocket.rect.centery), self.radius)
         mainsurf.blit(self._circlesurf, (0, 0))
 
 class Devil(pygame.sprite.Sprite):
@@ -277,8 +283,9 @@ class Item(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load('images/' + self.IMAGE_FILE)
+        self.image = pygame.image.load("images/" + self.IMAGE_FILE)
         self.rect = pygame.rect.Rect((random.randint(15, WIDTH - 15), random.randint(15, HEIGHT - 15)), self.image.get_size())
+
 
     def draw(self):
         mainsurf.blit(self.image, self.rect)
@@ -289,7 +296,10 @@ class Cookie(Item):
 
 
 class Powerup(Item):
+    SOUND_FILE = "powerup.wav"
     NAME = None
+    BLINK_RATE = 3
+
     state = None
     _sound = None
     _frames = None
@@ -298,10 +308,10 @@ class Powerup(Item):
     def __init__(self):
         super().__init__()
 
-        self._sound = pygame.mixer.Sound("sounds/powerup.wav")
-        self._frames = 0
-
+        self._sound = pygame.mixer.Sound("sounds/" + self.SOUND_FILE)
         self.state = 'notdropped'
+        self._frames = 0
+        self._blinker = 0
 
     def drop(self):
         self.state = 'onscreen'
@@ -311,31 +321,31 @@ class Powerup(Item):
         self._sound.play()
 
     def draw(self):
-        if self._frames <= 30 and self._frames % 3 == 0:
-            self._blinker = not self._blinker
-        elif self._frames == 30:
-            self._blinker = True
-
-        if self._blinker:
-            mainsurf.blit(self.image, self.rect)
-
         self._frames += 1
 
+        if self._frames <= 30:
+            if self._frames % self.BLINK_RATE == 0:
+                self._blinker = not self._blinker
 
+            if self._blinker:
+                mainsurf.blit(self.image, self.rect)
+        else:
+            mainsurf.blit(self.image, self.rect)
 
-class ShieldPowerup(Powerup):
-    IMAGE_FILE = "shield_powerup.png"
-    NAME = 'shield'
 
 
 class BombPowerup(Powerup):
     IMAGE_FILE = "bomb_powerup.png"
     NAME = 'bomb'
 
+class ShieldPowerup(Powerup):
+    IMAGE_FILE = "shield_powerup.png"
+    NAME = 'shield'
 
 class TimeBombPowerup(Powerup):
     IMAGE_FILE = "time_bomb_powerup.png"
     NAME = 'timebomb'
+
 
 
 class Bomb(pygame.sprite.Sprite):
@@ -461,39 +471,10 @@ class StarField(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self.rect)
 
-def randomdirection(maxdist=10):
-    # Return a vector we can use to push an object in a random
-    # direction. For example, if we return (-5, -5), that means
-    # push the object 5 pixels up and to the left.
-
-    # We're going to pick a random point around a unit circle.
-    # First, we need to pick a number from -1 to 1 to choose
-    # where to sample from the circle along the x dimension.
-
-    x = random.uniform(-1, 1)
-
-    # Now for any x dimension, there are 2 possible
-    # points along the y dimension: the top or the bottom.
-    y = math.sqrt(1 - x**2)
-
-    if random.choice([True, False]):
-        y *= -1
-
-    distance = random.randint(0, maxdist)
-
-    return (x * distance, y * distance)
-
 def winscreen():
     mainsurf.fill(BACKGROUND_COLOR)
  
     textsurf = mainfont.render('YOU WON', True, MAIN_COLOR)
- 
-    mainsurf.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
- 
-def losescreen():
-    mainsurf.fill(BACKGROUND_COLOR)
- 
-    textsurf = mainfont.render('YOU LOST', True, MAIN_COLOR)
  
     mainsurf.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
 
@@ -504,7 +485,7 @@ def pausescreen():
 
     mainsurf.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
  
-def showscore(level):
+def showlevel(level):
     textsurf = mainfont.render(str(level), True, MAIN_COLOR)
     mainsurf.blit(textsurf, (WIDTH - 50, 50))
 
@@ -558,17 +539,15 @@ def showboostbar(boostleft):
 
     pygame.draw.rect(mainsurf, BOOST_BAR_LINE_COLOR, (linex, liney, linewidth, lineheight))
 
+losescreen = None
+winscreen = None
+pausescreen = None
+
 powerups = {
     'bomb': BombPowerup(),
     'shield': ShieldPowerup(),
-    'timebomb': TimeBombPowerup(),
-    'stealthmode': StealthModePowerup(),
+    'timebomb': TimeBombPowerup()
 }
-
-winscreen = None
-losescreen = None
-pausescreen = None
-
 starfield = StarField()
 
 rocket = Rocket()
@@ -576,21 +555,15 @@ cookie = Cookie()
 shield = None
 
 # Create first devil
-devilgroup.add(Devil())
+devils.append(Devil())
 while True:
     event = pygame.event.poll()     
  
     if event.type == QUIT:
         exit()
-
-    if event.type == KEYUP and event.key == K_ESCAPE:  # If the player just pressed escape...
-        paused = not paused  # Flip paused state
-
+ 
     if gamewon:
-        if winscreen is None:
-            winscreen = WinScreen()
-
-        winscreen.draw()
+        winscreen()
         pygame.display.update()
         continue
 
@@ -602,11 +575,12 @@ while True:
         pygame.display.update()
         continue
 
-    if paused:
-        if pausescreen is not None:
-            losescreen = LoseScreen()
+    if event.type == KEYUP and event.key == K_ESCAPE:  # If the player just pressed escape...
+        paused = not paused  # Flip paused state
 
-        pausescreen.draw()
+    # If the game is paused, display the pause screen and skip everything else
+    if paused:
+        pausescreen()
         pygame.display.update()
         continue
 
@@ -679,7 +653,11 @@ while True:
 
     ### Update devil positions
 
-    for devil in devilgroup.sprites().copy(): # For each devil...
+    i = 0
+    while i < len(devils): # For each devil...
+        # Get the current x and y position for this devil
+        devil = devils[i]
+
         # If there is a time bomb and it's exploding, we ask it for a time
         # scale to find out how much to slow down the world.
         if timebomb is not None and timebomb.exploding:
@@ -706,27 +684,37 @@ while True:
 
 
         if collidingdevil is not None:
-            dirx, diry = randomdirection()
+            rd = randomdirection()
+            dirx = rd[0]
+            diry = rd[1]
+
             devil.rect.x += dirx
             devil.rect.y += diry
+
+        i += 1
 
     if event.type == KEYDOWN and event.key == K_d:
         for bomb in bombs:
             bomb.detonate()
 
+    # For each of the powerup objects...
     for powerup in powerups.values():
-        if powerup.state == 'onscreen' and rocket.rect.colliderect(powerup.rect):
-            # We are colliding with this powerup and it hasn't been collected
-            # already, so collect it.
+        # If we are colliding with this powerup and it hasn't been
+        # collected already, collect it.
+        if rocket.rect.colliderect(powerup.rect) and powerup.state == 'onscreen':
             powerup.collect()
 
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
     # Check if the rocket is colliding with any of the devils. If so, we lost
-    for devil in devilgroup:
+    i = 0
+    while i < len(devils):
+        devil = devils[i]
+
         if rocket.rect.colliderect(devil.rect):
             gamelost = True
             break
+        i += 1
 
     if gamelost:
         losesound.play()
@@ -739,9 +727,10 @@ while True:
             gamelost = True
             continue
 
-        for devil in devilgroup:
+        for devil in list(devils):
             # If a devil is colliding with an exploding bomb, it goes bye-bye
             if bomb.exploding and pygame.sprite.collide_circle(bomb, devil):
+                devils.remove(devil)
                 devilgroup.remove(devil)
 
     if event.type == KEYDOWN and event.key == K_d:
@@ -755,26 +744,31 @@ while True:
  
     # Check if the rocket is colliding with the cookie
     if rocket.rect.colliderect(cookie.rect):
+        # Time to level up!
         level += 1
 
-        if level >= LEVELS:  # We won
+        if level > MAX_POINTS:  # We won
             gamewon = True
             winsound.play()
             continue
         else:
-            # If we're on a level that has a powerup, drop the powerup
-            if level in LEVEL_TO_POWERUP:
-                powerupname = LEVEL_TO_POWERUP[level]
-                powerups[powerupname].drop()
-
             cookie = Cookie()
-            if level == LEVELS:  # Final level
+            if level == MAX_POINTS:  # Final level
                 devilgroup.empty()
-                devilgroup.add(BossDevil())
+                devils = [BossDevil()]
             else:
-                for i in range(level - 1):
-                    devilgroup.add(Devil())
+                for i in range(level):
+                    devils.append(Devil())
             levelupsound.play()
+
+            # If there's a powerup for this level, drop it.
+            if level in LEVEL_TO_POWERUP: 
+                # There is a powerup in the table for this level.
+                # So get the powerup's name
+                powerupname = LEVEL_TO_POWERUP[level]
+
+                # Now, look up the actual powerup object and tell it to drop
+                powerups[powerupname].drop()
 
     if event.type == KEYUP and event.key == K_RETURN and powerups['bomb'].state == 'collected':  # Drop a bomb
         bombs.append(Bomb(rocket.rect.x, rocket.rect.y))
@@ -784,8 +778,8 @@ while True:
         if bomb.done:
             bombs.remove(bomb)
 
-    if (event.type == KEYDOWN and event.key == K_t and powerups['timebomb'].state == 'collected'
-        and timebomb is None):
+    if (event.type == KEYDOWN and event.key == K_t and timebomb is None
+        and powerups['timebomb'].state == 'collected'):
         timebomb = TimeBomb(rocket.rect.x, rocket.rect.y)
 
     if timebomb is not None and timebomb.done:
@@ -795,24 +789,25 @@ while True:
         if shield.done:
             shield = None
         else:
-            for devil in devilgroup:
+            for devil in devils:
                 if pygame.sprite.collide_circle(devil, shield):
                     # OK, we need to move the devil outward past the edge of the shield.
-
+   
                     # Get the difference between this devil and the center of the shield along
                     # the x and y axes. You can also think of this as a vector of the two numbers
                     # "dx" and "dy"
-                    dx = devil.rect.centerx - shield.rect.centerx
-                    dy = devil.rect.centery - shield.rect.centery
+                    dx = devil.rect.centerx - rocket.rect.centerx
+                    dy = devil.rect.centery - rocket.rect.centery
 
-                    # Convert the difference along the x and y axis to a distance (you can also think of this
-                    # as the length of a vector)
+                    # Convert the difference along the x and y axis to a distance
+                    # (You can also think of this as the length of a vector)
                     len_xy = math.sqrt(dx**2 + dy**2)
 
+
                     # Divide each component of the vector by the length so it is "normalized"
-                    # to a number between 0 and 1.
+                    # to a vector with a length between 0 and 1
                     if len_xy == 0:
-                        # Don't want to divide by 0
+                        # Don't want to divide by zero
                         dx_normalized = dy_normalized = 0
                     else:
                         dx_normalized = dx / len_xy
@@ -822,15 +817,17 @@ while True:
                     # we start with the radius of the shield, then subtract the distance
                     # of the devil from the center. We also add 5 pixels as a "fudge factor"
                     # so it's not sitting right on the edge.
+
                     pushdistance = shield.radius - len_xy + 5
 
-                    # Add the appropriate distance to each dimension, multiplying by the normalized
-                    # vector from before to make sure it goes out at the same angle.
+                    # Add the appropriate distance to each dimension, multiplying by the 
+                    # normalized vector from before to make sure it goes out at the same
+                    # angle.
                     devil.rect.centerx += dx_normalized * pushdistance
                     devil.rect.centery += dy_normalized * pushdistance
 
-    if (event.type == KEYDOWN and event.key == K_s and powerups['shield'].state == 'collected'
-        and shield is None):  # Put up shield
+    if (event.type == KEYDOWN and event.key == K_s and shield is None and
+        powerups['shield'].state == 'collected'):
         shield = Shield(rocket)
 
 
@@ -839,25 +836,28 @@ while True:
 
     starfield.draw()
 
-    showscore(level)
+    showlevel(level)
     showboostbar(boostleft)
 
-    # Render devils
-    for devil in devilgroup:
-        devil.draw()
+    # Render rocket and cookie
+    cookie.draw()
 
     for bomb in bombs:
         bomb.draw()
 
-    for name, powerup in powerups.items():
+    for powerup in powerups.values():
         if powerup.state == 'onscreen':
             powerup.draw()
 
     if timebomb is not None:
         timebomb.draw()
 
-    # Render rocket and cookie
-    cookie.draw()
+    # Render devils
+    i = 0
+    while i < len(devils):
+        devil = devils[i]
+        devil.draw()
+        i += 1
 
     rocket.draw()
 
