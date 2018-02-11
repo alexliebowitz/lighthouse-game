@@ -7,6 +7,7 @@ from pygame.locals import *
 from utils import randomdirection
 from sprites.characters import Rocket, Devil, BossDevil
 from sprites.screens import WinScreen, LoseScreen, PauseScreen
+from sprites.indicators import LevelIndicator, BoostBar
 from sprites.items import BombPowerup, TimeBombPowerup, ShieldPowerup, Cookie
 from sprites.abilities import Shield, Bomb, TimeBomb
 from sprites.starfield import StarField
@@ -47,6 +48,7 @@ winscreen = None
 pausescreen = None
 
 levelindicator = LevelIndicator(level)
+boostbar = BoostBar(boostleft)
 
 powerups = {
     'bomb': BombPowerup(),
@@ -116,12 +118,14 @@ while True:
         if boostleft <= 0:
             boostmode = False
             rocketspeed = 1
+        boostbar.setboost(boostleft)
     else:
         # We're not in boost mode
 
         # Replenish boost counter
         if boostleft <= MAX_BOOST:
             boostleft += 0.25
+            boostbar.setboost(boostleft)
 
         # If space is held down, increase rocket speed (but don't let the speed go over the max)
         if keyspressed[K_SPACE]:
@@ -348,8 +352,8 @@ while True:
 
     starfield.draw()
 
-    showlevel(level)
-    showboostbar(boostleft)
+    levelindicator.draw()
+    boostbar.draw()
 
     # Render rocket and cookie
     cookie.draw()
