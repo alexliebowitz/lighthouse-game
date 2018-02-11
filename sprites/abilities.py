@@ -1,4 +1,9 @@
-class Shield(pygame.sprite.Sprite):
+import pygame
+
+from .gamesprite import GameSprite
+from constants import *
+
+class Shield(GameSprite):
     _frames = None
     _rocket = None
     radius = None
@@ -40,10 +45,10 @@ class Shield(pygame.sprite.Sprite):
 
         pygame.draw.circle(self._circlesurf, SHIELD_COLOR,
                            (self._rocket.rect.centerx, self._rocket.rect.centery), self.radius)
-        mainsurf.blit(self._circlesurf, (0, 0))
+        self._mainsurf.blit(self._circlesurf, (0, 0))
 
 
-class Bomb(pygame.sprite.Sprite):
+class Bomb(GameSprite):
     BLAST_RADIUS = 300
     EXPLOSION_COLOR_1 = (255, 255, 255)
     EXPLOSION_COLOR_2 = (200, 200, 200)
@@ -95,7 +100,7 @@ class Bomb(pygame.sprite.Sprite):
 
         if not self.exploding:
             # We haven't exploded yet, so draw the normal bomb
-            mainsurf.blit(self.image, self.rect)
+            self._mainsurf.blit(self.image, self.rect)
         elif self.radius <= self.BLAST_RADIUS:  # Exploding
             self._frames_since_detonated += 1
             if self._frames_since_detonated % 3 == 0:  # Every third frame...
@@ -108,7 +113,7 @@ class Bomb(pygame.sprite.Sprite):
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
             pygame.draw.circle(self._circlesurf, color, (self.rect.centerx, self.rect.centery), self.radius)
-            mainsurf.blit(self._circlesurf, (0, 0))
+            self._mainsurf.blit(self._circlesurf, (0, 0))
         else:
             # We are past the radius, so we do not draw, and we set this.done to True
             # so the main game loop knows it can remove this from the list of bombs.
