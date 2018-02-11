@@ -148,6 +148,17 @@ class LoseScreen(Screen):
         self._content.blit(textsurf, textrect)
         super().draw()
 
+class PauseScreen(Screen):
+    BACKDROP_COLOR = (252, 254, 234)
+    CONTENT_COLOR = (0, 0, 0)
+
+    def draw(self):
+        textsurf = mainfont.render("GAME PAUSED", True, self.CONTENT_COLOR)
+        textrect = textsurf.get_rect(center=mainsurf.get_rect().center)
+
+        self._content.blit(textsurf, textrect)
+        super().draw()
+
 
 class Rocket(pygame.sprite.Sprite):
     _frames = None
@@ -484,13 +495,6 @@ class StarField(pygame.sprite.Sprite):
     def draw(self):
         mainsurf.blit(self.image, self.rect)
 
-def pausescreen():
-    mainsurf.fill(PAUSE_BACKGROUND_COLOR)
-
-    textsurf = mainfont.render("PAUSED", True, MAIN_COLOR)
-
-    mainsurf.blit(textsurf, (WIDTH / 2, HEIGHT / 2))
- 
 def showlevel(level):
     textsurf = mainfont.render(str(level), True, MAIN_COLOR)
     mainsurf.blit(textsurf, (WIDTH - 50, 50))
@@ -586,9 +590,14 @@ while True:
     if event.type == KEYUP and event.key == K_ESCAPE:  # If the player just pressed escape...
         paused = not paused  # Flip paused state
 
+        if paused:
+            pausescreen = PauseScreen()
+        else:
+            pausescreen = None
+
     # If the game is paused, display the pause screen and skip everything else
     if paused:
-        pausescreen()
+        pausescreen.draw()
         pygame.display.update()
         continue
 
