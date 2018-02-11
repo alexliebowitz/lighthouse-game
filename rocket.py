@@ -3,42 +3,7 @@ import math
 import random
 
 from pygame.locals import *
-
-### Initialize constants
-
-WIDTH = 1000
-HEIGHT = 800
-BOOST_BAR_WIDTH = 150
-BOOST_BAR_HEIGHT = 20
-BOOST_BAR_COLOR = (0, 255, 0)
-BOOST_BAR_COLOR_DEPLETED = (200, 0, 0)
-BOOST_BAR_LINE_COLOR = (50, 50, 50)
-BACKGROUND_COLOR = (180, 200, 240)
-PAUSE_BACKGROUND_COLOR = (255, 255, 255)
-FRAMERATE = 60
-DEVILSPEED = 3
-MAX_POINTS = 10
-MAX_SPEED = 10
-BOOST_SPEED = 20
-MIN_BOOST = 20
-MAX_BOOST = 50
-MAIN_COLOR = (255, 0, 0)
-STAR_COLOR = (255, 255, 255)
-ROCKET_TRAIL_SPACING = 7
-ROCKET_MAX_TRAIL = 8
-ROCKET_TRAIL_START_ALPHA = 255
-ROCKET_TRAIL_FADE = 0.75
-SHIELD_COLOR = (128, 200, 128)
-SHIELD_ALPHA = 120
-SHIELD_DURATION = 200
-SHIELD_MAX = 40
-SHIELD_SPEED = 15
-COLLIDE_PUSH_RADIUS = 5
-LEVEL_TO_POWERUP = {
-    2: 'bomb',
-    4: 'shield',
-    6: 'timebomb'
-}
+from constants import *
 
 
 pygame.init()
@@ -846,8 +811,6 @@ while True:
     if (event.type == KEYDOWN and event.key == K_s and shield is None and
         powerups['shield'].state == 'collected'):
         shield = Shield(rocket)
-
-
 
     ### The game state has been updated. Time to render!
 
