@@ -22,7 +22,9 @@ mainfont = pygame.font.SysFont('Helvetica', 25)
 
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
-rocketspeed = 1
+rocketspeedx = 0
+rocketspeedy = 0
+rocketspeedincr = INIT_SPEED_INCR
 
 boostmode = False
 boostleft = MAX_BOOST
@@ -117,7 +119,7 @@ while True:
         boostleft -= 1  # Deplete the boost counter
         if boostleft <= 0:
             boostmode = False
-            rocketspeed = 1
+            rocketspeedincr = 1
         boostbar.setboost(boostleft)
     else:
         # We're not in boost mode
@@ -257,6 +259,9 @@ while True:
     if gamelost:
         losesound.play()
         continue
+
+    rocket.incrx(rocketspeedx)
+    rocket.incry(rocketspeedy)
  
     # Check if the rocket is colliding with the cookie
     if rocket.rect.colliderect(cookie.rect):
