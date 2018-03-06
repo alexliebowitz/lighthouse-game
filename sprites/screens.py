@@ -60,7 +60,7 @@ class LoseScreen(Screen):
 
 class PauseScreen(Screen):
     BACKDROP_COLOR = (252, 254, 234)
-    CONTENT_COLOR = (0, 0, 0)
+    CONTENT_COLOR = (1, 1, 1)
 
     def draw(self):
         textsurf = self._font.render("GAME PAUSED", True, self.CONTENT_COLOR)
