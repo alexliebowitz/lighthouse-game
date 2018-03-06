@@ -19,6 +19,8 @@ class Rocket(GameSprite):
 
         self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.x = self.rect.x
+        self.y = self.rect.y
 
     def draw_trail_rocket(self, coords, alpha):
         tempsurf = pygame.Surface((WIDTH, HEIGHT))
