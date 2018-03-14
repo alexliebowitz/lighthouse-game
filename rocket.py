@@ -24,7 +24,8 @@ mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
 rocketspeedx = 0
 rocketspeedy = 0
-rocketspeedincr = INIT_SPEED_INCR
+rocketspeed = 0
+rocketspeedincr = DEFAULT_SPEED_INCR
 
 boostmode = False
 boostleft = MAX_BOOST
@@ -107,11 +108,13 @@ while True:
     # If the player pressed "b" and we have enough boost to start, then go into boost mode
     if event.type == KEYDOWN and event.key == K_b and boostleft > MIN_BOOST:
         boostmode = True
-        rocketspeed = 20
+        rocketspeedincr = BOOST_SPEED_INCR
+        rocketspeed = BOOST_MAX_SPEED
 
     if event.type == KEYUP and event.key == K_b:  # Boost mode over
         boostmode = False
-        rocketspeed = 1
+        rocketspeedincr = DEFAULT_SPEED_INCR
+        rocketspeed = DEFAULT_MAX_SPEED
 
     if boostmode:
         # We're in boost mode
@@ -128,18 +131,6 @@ while True:
         if boostleft <= MAX_BOOST:
             boostleft += 0.25
             boostbar.setboost(boostleft)
-
-        # If space is held down, increase rocket speed (but don't let the speed go over the max)
-        if keyspressed[K_SPACE]:
-            rocketspeed += .25
-            if rocketspeed > MAX_SPEED:
-                rocketspeed = MAX_SPEED
-
-        # If shift is held down, decrease rocket speed (but don't let the speed go under 0)
-        if keyspressed[K_LSHIFT] or keyspressed[K_RSHIFT]:
-            rocketspeed -= 1
-            if rocketspeed < 0:
-                rocketspeed = .1
 
     ### Update rocket position using the speed we just calculated
 

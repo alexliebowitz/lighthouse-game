@@ -17,10 +17,10 @@ class GameSprite(pygame.sprite.Sprite):
         self.y = y
         self.rect.y = y
 
-    def incrx(self, xamount):
-        self.x += xamount
+    def incrx(self, amount):
+        self.x += amount
         self.rect.x = self.x
 
-    def incry(self, yamount):
-        self.y += yamount
+    def incry(self, amount):
+        self.y += amount
         self.rect.y = self.y
