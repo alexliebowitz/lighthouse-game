@@ -2,15 +2,17 @@ import pygame
 import math
 import random
 
-from pygame.locals import *
+from constants import *
 
-from utils import randomdirection
-from sprites.characters import Rocket, Devil, BossDevil
-from sprites.screens import WinScreen, LoseScreen, PauseScreen
-from sprites.indicators import LevelIndicator, BoostBar
+from pygame.locals import *
+from sprites.indicators import *
+from sprites.screens import *
+from sprites.gamesprite import *
 from sprites.items import BombPowerup, TimeBombPowerup, ShieldPowerup, Cookie
-from sprites.abilities import Shield, Bomb, TimeBomb
 from sprites.starfield import StarField
+from sprites.abilities import *
+from sprites.characters import *
+from utils import *
 
 from constants import *
 
