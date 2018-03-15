@@ -80,18 +80,16 @@ while True:
         winscreen.draw()
         pygame.display.update()
         continue
-
+ 
     if gamelost:
         if losescreen is None:
             losescreen = LoseScreen()
-
         losescreen.draw()
         pygame.display.update()
         continue
 
     if event.type == KEYUP and event.key == K_ESCAPE:  # If the player just pressed escape...
         paused = not paused  # Flip paused state
-
         if paused:
             pausescreen = PauseScreen()
         else:
@@ -111,12 +109,10 @@ while True:
     if event.type == KEYDOWN and event.key == K_b and boostleft > MIN_BOOST:
         boostmode = True
         rocketspeedincr = BOOST_SPEED_INCR
-        rocketspeed = BOOST_MAX_SPEED
 
     if event.type == KEYUP and event.key == K_b:  # Boost mode over
         boostmode = False
         rocketspeedincr = DEFAULT_SPEED_INCR
-        rocketspeed = DEFAULT_MAX_SPEED
 
     if boostmode:
         # We're in boost mode
