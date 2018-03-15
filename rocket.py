@@ -145,9 +145,6 @@ while True:
     if keyspressed[K_RIGHT]:
         rocketspeedx += rocketspeedincr
 
-    rocketspeedx *= FRICTION
-    rocketspeedy *= FRICTION
-
     # If the rocket is now past the edge in any direction, move it back to the edge.
     if rocket.rect.x < 0:
         rocket.setx(0)
