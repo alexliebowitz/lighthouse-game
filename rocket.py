@@ -67,7 +67,11 @@ cookie = Cookie()
 shield = None
 
 # Create first devil
-devils.append(Devil())
+
+firstdevil = Devil()
+devils.append(firstdevil)
+devilgroup.add(firstdevil)
+
 while True:
     event = pygame.event.poll()     
  
@@ -269,8 +273,9 @@ while True:
                 devils = [BossDevil()]
             else:
                 for i in range(level):
-                    devilgroup.add(Devil())
-                    devils.append(Devil())
+                    newdevil = Devil()
+                    devilgroup.add(newdevil)
+                    devils.append(newdevil)
             levelupsound.play()
 
             # If there's a powerup for this level, drop it.
