@@ -150,16 +150,16 @@ while True:
 
     # If the rocket is now past the edge in any direction, move it back to the edge.
     if rocket.rect.x < 0:
-        rocket.rect.x = 0
+        rocket.setx(0)
 
     if rocket.rect.x > WIDTH - rocket.rect.width:
-        rocket.rect.x = WIDTH - rocket.rect.width
+        rocket.setx(WIDTH - rocket.rect.width)
 
     if rocket.rect.y < 0:
-        rocket.rect.y = 0
+        rocket.sety(0)
 
     if rocket.rect.y > HEIGHT - rocket.rect.height:
-        rocket.rect.y = HEIGHT - rocket.rect.height
+        rocket.sety(HEIGHT - rocket.rect.height)
     
 
     ### Update devil positions
