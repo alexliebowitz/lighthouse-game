@@ -124,8 +124,7 @@ while True:
         boostleft -= 1  # Deplete the boost counter
         if boostleft <= 0:
             boostmode = False
-            rocketspeedincr = 1
-        boostbar.setboost(boostleft)
+            rocketspeedincr = DEFAULT_SPEED_INCR
     else:
         # We're not in boost mode
 
@@ -137,16 +136,19 @@ while True:
     ### Update rocket position using the speed we just calculated
 
     if keyspressed[K_UP]:
-        rocket.rect.y -= rocketspeed
+        rocketspeedy -= rocketspeedincr
  
     if keyspressed[K_DOWN]:
-        rocket.rect.y += rocketspeed
+        rocketspeedy += rocketspeedincr
  
     if keyspressed[K_LEFT]:
-        rocket.rect.x -= rocketspeed
+        rocketspeedx -= rocketspeedincr
  
     if keyspressed[K_RIGHT]:
-        rocket.rect.x += rocketspeed
+        rocketspeedx += rocketspeedincr
+
+    rocketspeedx *= FRICTION
+    rocketspeedy *= FRICTION
 
     # If the rocket is now past the edge in any direction, move it back to the edge.
     if rocket.rect.x < 0:
