@@ -1,7 +1,7 @@
 import pygame
 import random
 
-from .gamesprite import GameSprite
+from sprites.gamesprite import GameSprite
 
 from constants import *
 
@@ -73,6 +73,8 @@ class Devil(GameSprite):
             y = random.randint(0, HEIGHT)
 
         self.rect = pygame.rect.Rect((x, y), self.image.get_size())
+        self.setx(x)
+        self.sety(y)
 
     def draw(self):
         self._mainsurf.blit(self.image, self.rect)

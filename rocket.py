@@ -161,11 +161,7 @@ while True:
 
     ### Update devil positions
 
-    i = 0
-    while i < len(devils): # For each devil...
-        # Get the current x and y position for this devil
-        devil = devils[i]
-
+    for devil in devils: # For each devil...
         # If there is a time bomb and it's exploding, we ask it for a time
         # scale to find out how much to slow down the world.
         if timebomb is not None and timebomb.exploding:
@@ -173,18 +169,7 @@ while True:
         else:
             timescale = 1
 
-        # Calculate the *new* x and y position for this devil
-        if devil.rect.x > rocket.rect.x:
-            devil.rect.x -= DEVILSPEED * timescale
-    
-        if devil.rect.x < rocket.rect.x:
-            devil.rect.x += DEVILSPEED * timescale
-     
-        if devil.rect.y > rocket.rect.y:
-            devil.rect.y -= DEVILSPEED * timescale
-     
-        if devil.rect.y < rocket.rect.y:
-            devil.rect.y += DEVILSPEED * timescale
+        devil.movetoward(rocket, DEVILSPEED * timescale)
 
         devilgroup.remove(devil)
         collidingdevil = pygame.sprite.spritecollideany(devil, devilgroup)
@@ -198,8 +183,6 @@ while True:
 
             devil.rect.x += dirx
             devil.rect.y += diry
-
-        i += 1
 
     if event.type == KEYDOWN and event.key == K_d:
         for bomb in bombs:
