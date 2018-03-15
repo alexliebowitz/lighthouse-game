@@ -14,8 +14,6 @@ from sprites.abilities import *
 from sprites.characters import *
 from utils import *
 
-from constants import *
-
 
 pygame.init()
 pygame.mixer.init()
