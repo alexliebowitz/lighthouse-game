@@ -100,12 +100,12 @@ class BossDevil(Devil):
     def draw(self):
         self._framecounter += 1
 
-        if self._framecounter == 5:
-            self._framecounter = 0
+        if self._framecounter % 5 == 0:
             self._inverted = not self._inverted
-            if self._inverted:
-                self.image = self._invertedimage
-            else:
-                self.image = self._normalimage
+
+        if self._inverted:
+            self.image = self._invertedimage
+        else:
+            self.image = self._normalimage
 
         self._mainsurf.blit(self.image, self.rect)
