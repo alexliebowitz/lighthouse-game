@@ -4,6 +4,7 @@ import random
 from sprites.gamesprite import GameSprite
 
 from constants import *
+from utils import *
 
 class Rocket(GameSprite):
     _frames = None
@@ -84,6 +85,8 @@ class Devil(GameSprite):
 
 
 class BossDevil(Devil):
+    _fireballs = None
+
     def __init__(self, rocket):
         super().__init__(rocket)
 
@@ -92,6 +95,8 @@ class BossDevil(Devil):
 
         self._framecounter = 0
         self._inverted = False
+
+        self._fireballs = pygame.sprite.Group()
 
         self.image = pygame.image.load('images/boss.png')
         self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
@@ -107,5 +112,18 @@ class BossDevil(Devil):
             self.image = self._invertedimage
         else:
             self.image = self._normalimage
+
+        if self._framecounter % FIREBALL_INTERVAL == 0:
+            dx = self._rocket.rect.centerx - self.rect.centerx
+            dy = self._rocket.rect.centery - self.rect.centery
+            bearingx, bearingy = normalize(dx, dy)
+
+            newfireball = Fireball((self.rect.centerx, self.rect.centery), (bearingx, bearingy))
+            self._fireballs.add(newfireball)
+
+        for fireball in self._fireballs:
+            fireball.draw()
+
+        self._mainsurf.blit(self.image, self.rect)
 
         self._mainsurf.blit(self.image, self.rect)
