@@ -126,4 +126,23 @@ class BossDevil(Devil):
 
         self._mainsurf.blit(self.image, self.rect)
 
+class Fireball(GameSprite):
+    _bearingx = None
+    _bearingy = None
+
+    def __init__(self, startcoords, bearing):
+        super().__init__()
+        self.image = pygame.image.load("images/fireball.png")
+
+        self.rect = pygame.rect.Rect(startcoords, self.image.get_size())
+
+        self._bearingx, self._bearingy = bearing
+        startx, starty = startcoords
+        self.setx(startx)
+        self.sety(starty)
+
+    def draw(self):
+        self.incrx(self._bearingx * FIREBALL_SPEED)
+        self.incry(self._bearingy * FIREBALL_SPEED)
+
         self._mainsurf.blit(self.image, self.rect)
