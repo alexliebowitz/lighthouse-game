@@ -35,3 +35,5 @@ LEVEL_TO_POWERUP = {
     4: 'shield',
     6: 'timebomb'
 }
+FIREBALL_INTERVAL = 50
+FIREBALL_SPEED = 10
