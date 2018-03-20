@@ -66,7 +66,7 @@ shield = None
 
 # Create first devil
 
-firstdevil = Devil()
+firstdevil = Devil(rocket)
 devils.append(firstdevil)
 devilgroup.add(firstdevil)
 
@@ -250,10 +250,10 @@ while True:
             cookie = Cookie()
             if level == MAX_POINTS:  # Final level
                 devilgroup.empty()
-                devils = [BossDevil()]
+                devils = [BossDevil(rocket)]
             else:
                 for i in range(level):
-                    newdevil = Devil()
+                    newdevil = Devil(rocket)
                     devilgroup.add(newdevil)
                     devils.append(newdevil)
             levelupsound.play()

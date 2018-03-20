@@ -53,10 +53,13 @@ class Rocket(GameSprite):
 
 
 class Devil(GameSprite):
-    def __init__(self):
+    _rocket = None
+
+    def __init__(self, rocket):
         super().__init__()
 
         self.image = pygame.image.load("images/devil.png")
+        self._rocket = rocket
 
         side = random.randint(0, 3)
         if side == 0:  # Top
@@ -81,8 +84,8 @@ class Devil(GameSprite):
 
 
 class BossDevil(Devil):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, rocket):
+        super().__init__(rocket)
 
         self._normalimage = pygame.image.load("images/boss.png")
         self._invertedimage = pygame.image.load("images/boss2.png")
