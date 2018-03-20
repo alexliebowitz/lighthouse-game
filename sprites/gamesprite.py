@@ -43,6 +43,9 @@ class GameSprite(pygame.sprite.Sprite):
             dx_normalized = dx / distance
             dy_normalized = dy / distance
 
+        # To get the final result, multiply the normalized x and y difference
+        # by the distance we want to move
+
         move_dx = dx_normalized * amount
         move_dy = dy_normalized * amount
 
