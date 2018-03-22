@@ -135,6 +135,7 @@ class BossDevil(Devil):
 class Fireball(GameSprite):
     _bearingx = None
     _bearingy = None
+    _rotate_angle = 0
 
     def __init__(self, startcoords, bearing):
         super().__init__()
@@ -151,4 +152,7 @@ class Fireball(GameSprite):
         self.incrx(self._bearingx * FIREBALL_SPEED)
         self.incry(self._bearingy * FIREBALL_SPEED)
 
-        self._mainsurf.blit(self.image, self.rect)
+        rotatedimage = pygame.transform.rotate(self.image, self._rotate_angle)
+        self._rotate_angle += FIREBALL_SPIN_SPEED
+
+        self._mainsurf.blit(rotatedimage, self.rect)
