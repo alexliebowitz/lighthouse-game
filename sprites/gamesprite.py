@@ -52,6 +52,12 @@ class GameSprite(pygame.sprite.Sprite):
         self.incrx(move_dx)
         self.incry(move_dy)
 
+    def colliding(self, othersprite):
+        # This function is used to ask a sprite if it's colliding with another one.
+        # You can override this when you need custom collision detection, because your
+        # sprite is an unusual shape or it has "slave" sprites
+
+        return pygame.sprite.collide_rect(self, othersprite)
 
     def setx(self, x):
         self.x = x

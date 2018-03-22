@@ -202,7 +202,7 @@ while True:
     while i < len(devils):
         devil = devils[i]
 
-        if rocket.rect.colliderect(devil.rect):
+        if devil.colliding(rocket):
             gamelost = True
             break
         i += 1

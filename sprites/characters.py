@@ -104,6 +104,10 @@ class BossDevil(Devil):
         self.setx(self.rect.x)
         self.sety(self.rect.y)
 
+    def colliding(self, othersprite):
+        return (pygame.sprite.collide_rect(self, othersprite)
+                or pygame.sprite.spritecollideany(self._rocket, self._fireballs))
+
     def draw(self):
         self._framecounter += 1
 
