@@ -101,6 +101,8 @@ class BossDevil(Devil):
         self.image = pygame.image.load('images/boss.png')
         self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.setx(self.rect.x)
+        self.sety(self.rect.y)
 
     def draw(self):
         self._framecounter += 1
