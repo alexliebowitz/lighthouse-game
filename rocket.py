@@ -39,6 +39,7 @@ level = 1
 paused = False
 gamewon = False
 gamelost = False
+menu_open = True
 
 devilgroup = pygame.sprite.Group()
 
@@ -46,6 +47,7 @@ winsound = pygame.mixer.Sound("sounds/winscreen.wav")
 losesound = pygame.mixer.Sound("sounds/sadtrombone.wav")
 levelupsound = pygame.mixer.Sound("sounds/omnomnom.ogg")
 
+menuscreen = MenuScreen()
 losescreen = None
 winscreen = None
 pausescreen = None
@@ -75,7 +77,15 @@ while True:
  
     if event.type == QUIT:
         exit()
+
+    if event.type == KEYDOWN and event.key == K_SPACE:
+        menu_open = False
  
+    if menu_open:
+        menuscreen.draw()
+        pygame.display.update()
+        continue
+
     if gamewon:
         if winscreen is None:
             winscreen = WinScreen()

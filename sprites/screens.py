@@ -68,3 +68,47 @@ class PauseScreen(Screen):
 
         self._content.blit(textsurf, textrect)
         super().draw()
+
+class MenuScreen(Screen):
+    BACKDROP_COLOR = (1, 1, 1)
+    BACKDROP_ALPHA = 255
+    CONTENT_COLOR = (255, 255, 255)
+
+    _fade_toggle = None
+
+    _r = None
+    _g = None
+    _b = None
+
+
+
+    def __init__(self):
+        super().__init__()
+
+        self._r = 1
+        self._g = 1
+        self._b = 1
+
+        self._fade_toggle = True
+
+    def draw(self):
+        if self._fade_toggle:
+            self._r += 1
+            self._g += 1
+            self._b += 1
+        else:
+            self._r -= 1
+            self._g -= 1
+            self._b -= 1
+
+        if self._r >= 255:
+            self._fade_toggle = False
+        elif self._r <= 1:
+            self._fade_toggle = True
+
+        self._backdrop.fill((self._r, self._g, self._b))
+
+        textsurf = self._font.render("WELCOME", True, self.CONTENT_COLOR)
+        self._content.blit(textsurf, (WIDTH / 2, 200))
+
+        super().draw()
