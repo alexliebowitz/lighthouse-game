@@ -119,20 +119,17 @@ while True:
 
     # If the player pressed "b" and we have enough boost to start, then go into boost mode
     if event.type == KEYDOWN and event.key == K_b and boostleft > MIN_BOOST:
-        boostmode = True
-        rocketspeedincr = BOOST_SPEED_INCR
+        rocket.booston()
 
     if event.type == KEYUP and event.key == K_b:  # Boost mode over
-        boostmode = False
-        rocketspeedincr = DEFAULT_SPEED_INCR
+        rocket.boostoff()
 
-    if boostmode:
+    if rocket.boostmode:
         # We're in boost mode
 
         boostleft -= 1  # Deplete the boost counter
         if boostleft <= 0:
-            boostmode = False
-            rocketspeedincr = DEFAULT_SPEED_INCR
+            rocket.boostoff()
     else:
         # We're not in boost mode
 
@@ -144,16 +141,16 @@ while True:
     ### Update rocket position using the speed we just calculated
 
     if keyspressed[K_UP]:
-        rocketspeedy -= rocketspeedincr
+        rocket.decrspeedy()
  
     if keyspressed[K_DOWN]:
-        rocketspeedy += rocketspeedincr
+        rocket.incrspeedy()
  
     if keyspressed[K_LEFT]:
-        rocketspeedx -= rocketspeedincr
+        rocket.decrspeedx()
  
     if keyspressed[K_RIGHT]:
-        rocketspeedx += rocketspeedincr
+        rocket.incrspeedx()
 
     # If the rocket is now past the edge in any direction, move it back to the edge.
     if rocket.rect.x < 0:

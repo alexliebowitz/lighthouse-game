@@ -9,19 +9,53 @@ from utils import *
 class Rocket(GameSprite):
     _frames = None
     _trail = None
+    _booston = None
+    _boostmode = None
+    _speedincr = None
+    _speedx = None
+    _speedy = None
 
     def __init__(self):
         super().__init__()
 
-        self._frames = 0
-        self._trail = []
-
         self.image = pygame.image.load("images/rocket.png")
 
-        self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
-        self.x = self.rect.x
-        self.y = self.rect.y
+        self._frames = 0
+        self._trail = []
+        self._speedincr = DEFAULT_SPEED_INCR
+        self.boostmode = False
+        self._speedx = 0
+        self._speedy = 0
+
+        self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
+        self.setx(WIDTH / 2)
+        self.sety(HEIGHT / 2)
+
+    def booston(self):
+        self.boostmode = True
+        self._speedincr = BOOST_SPEED_INCR
+
+    def boostoff(self):
+        self.boostmode = False
+        self._speedincr = DEFAULT_SPEED_INCR
+
+    def setspeedx(self, speedx):
+        self._speedx = speedx
+
+    def setspeedy(self, speedy):
+        self._speedy = speedy
+
+    def incrspeedx(self):
+        self._speedx += self._speedincr
+
+    def incrspeedy(self):
+        self._speedy += self._speedincr
+
+    def decrspeedx(self):
+        self._speedx -= self._speedincr
+
+    def decrspeedy(self):
+        self._speedy -= self._speedincr
 
     def draw_trail_rocket(self, coords, alpha):
         tempsurf = pygame.Surface((WIDTH, HEIGHT))
@@ -33,6 +67,11 @@ class Rocket(GameSprite):
 
     def draw(self):
         self._frames += 1
+
+        self._speedx *= FRICTION
+        self._speedy *= FRICTION
+        self.incrx(self._speedx)
+        self.incry(self._speedy)
 
         # Compute new trail and blit it
         if self._frames % ROCKET_TRAIL_SPACING == 0:
