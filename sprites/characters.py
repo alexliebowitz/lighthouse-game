@@ -137,7 +137,7 @@ class BossDevil(Devil):
 
         self._fireballs = pygame.sprite.Group()
 
-        self.image = pygame.image.load('images/boss.png')
+        self.image = pygame.image.load("images/boss.png")
         self.rect = pygame.rect.Rect((0, 0), self.image.get_size())
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
         self.setx(self.rect.x)

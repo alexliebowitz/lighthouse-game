@@ -22,11 +22,6 @@ mainfont = pygame.font.SysFont('Helvetica', 25)
 
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
 
-rocketspeedx = 0
-rocketspeedy = 0
-rocketspeed = 0
-rocketspeedincr = DEFAULT_SPEED_INCR
-
 boostmode = False
 boostleft = MAX_BOOST
 
@@ -184,9 +179,7 @@ while True:
 
 
         if collidingdevil is not None:
-            rd = randomdirection()
-            dirx = rd[0]
-            diry = rd[1]
+            dirx, diry = randomdirection()
 
             devil.rect.x += dirx
             devil.rect.y += diry
@@ -205,14 +198,10 @@ while True:
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
     # Check if the rocket is colliding with any of the devils. If so, we lost
-    i = 0
-    while i < len(devils):
-        devil = devils[i]
-
+    for devil in devils:
         if devil.colliding(rocket):
             gamelost = True
             break
-        i += 1
 
     if gamelost:
         losesound.play()
@@ -240,9 +229,6 @@ while True:
         losesound.play()
         continue
 
-    rocket.incrx(rocketspeedx)
-    rocket.incry(rocketspeedy)
- 
     # Check if the rocket is colliding with the cookie
     if rocket.rect.colliderect(cookie.rect):
         # Time to level up!
@@ -355,11 +341,8 @@ while True:
         timebomb.draw()
 
     # Render devils
-    i = 0
-    while i < len(devils):
-        devil = devils[i]
+    for devil in devils:
         devil.draw()
-        i += 1
 
     rocket.draw()
 

@@ -41,7 +41,7 @@ class WinScreen(Screen):
     CONTENT_COLOR = (0, 100, 0)
 
     def draw(self):
-        textsurf = self._font.render('YOU WON', True, self.CONTENT_COLOR)
+        textsurf = self._font.render("YOU WON", True, self.CONTENT_COLOR)
         textrect = textsurf.get_rect(center=self._mainsurf.get_rect().center)
 
         self._content.blit(textsurf, textrect)
