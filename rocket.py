@@ -344,12 +344,12 @@ while True:
         if powerup.state == 'onscreen':
             powerup.draw()
 
-    if timebomb is not None:
-        timebomb.draw()
-
     # Render devils
     for devil in devils:
         devil.draw()
+
+    if timebomb is not None:
+        timebomb.draw()
 
     rocket.draw()
 
