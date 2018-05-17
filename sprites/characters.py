@@ -11,6 +11,7 @@ class Rocket(GameSprite):
     _trail = None
     _booston = None
     _boostmode = None
+    _angle = None
     _speedincr = None
     _speedx = None
     _speedy = None
@@ -26,6 +27,8 @@ class Rocket(GameSprite):
         self.boostmode = False
         self._speedx = 0
         self._speedy = 0
+
+        self._angle = 0  # Start off pointing upward
 
         self.rect = pygame.rect.Rect((WIDTH / 2, HEIGHT / 2), self.image.get_size())
         self.setx(WIDTH / 2)
@@ -81,15 +84,39 @@ class Rocket(GameSprite):
             self._trail = self._trail[:-1]
 
 
+        if self._speedx != 0 or self._speedy != 0:
+            # We're moving, so we need to update self._angle to match
+            # the direction we're moving.
+            rotvec = pygame.math.Vector2((self._speedx, self._speedy))
+            _, raw_angle = rotvec.as_polar()
+
+            # as_polar() gives us an "azimuthal angle" (whatever that means).
+            # For mysterious reasons, we need to add 90 degrees and flip
+            # the sign to get a regular angle.
+            self._angle = 0 - (raw_angle + 90)
+
+
+        rotatedimage = pygame.transform.rotate(self.image, self._angle)
+
         alpha = ROCKET_TRAIL_START_ALPHA
         for trailcoord in self._trail:
             alpha *= ROCKET_TRAIL_FADE
 
             self.draw_trail_rocket(trailcoord, alpha)
 
-        # Blit rocket
+        # When we called pygame.transform.rotate(), that gave us a new surface
+        # enlarged to contain the rotated image. This means if we tried to blit
+        # the image with self.rect, it would be slightly off center. Instead we
+        # create a temporary rectangle object from the rotated image, and
+        # re-center it on the center of the rocket.
 
-        self._mainsurf.blit(self.image, self.rect)
+        draw_rect = rotatedimage.get_rect()
+        draw_rect.centerx = self.rect.centerx
+        draw_rect.centery = self.rect.centery
+
+        # Now draw_rect contains the correct position info, so we
+        # blit the rotated image at that position.
+        self._mainsurf.blit(rotatedimage, draw_rect)
 
 
 class Devil(GameSprite):
