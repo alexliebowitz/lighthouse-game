@@ -31,9 +31,11 @@ timebomb = None
 
 level = 1
 
+
 paused = False
 gamewon = False
 gamelost = False
+godmode = False
 menu_open = True
 
 devilgroup = pygame.sprite.Group()
@@ -75,7 +77,11 @@ while True:
 
     if event.type == KEYDOWN and event.key == K_SPACE:
         menu_open = False
- 
+
+    if event.type == KEYDOWN and event.key == K_g:
+        godmode = not godmode
+
+
     if menu_open:
         menuscreen.draw()
         pygame.display.update()
@@ -197,11 +203,12 @@ while True:
 
     ### We have the new positions for everything. Now, check for collisions and update the game in response
 
-    # Check if the rocket is colliding with any of the devils. If so, we lost
-    for devil in devils:
-        if devil.colliding(rocket):
-            gamelost = True
-            break
+    if not godmode:
+        # Check if the rocket is colliding with any of the devils. If so, we lost
+        for devil in devils:
+            if devil.colliding(rocket):
+                gamelost = True
+                break
 
     if gamelost:
         losesound.play()
@@ -209,7 +216,7 @@ while True:
 
     # Check for collisions with bombs.
     for bomb in bombs:
-        if bomb.exploding and pygame.sprite.collide_circle(bomb, rocket):
+        if not godmode and bomb.exploding and pygame.sprite.collide_circle(bomb, rocket):
             # If the rocket is colliding with an exploding bomb, we lose
             gamelost = True
             continue
