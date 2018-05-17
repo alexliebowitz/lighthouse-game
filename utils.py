@@ -28,6 +28,9 @@ def randomdirection(maxdist=10):
     return (x * distance, y * distance)
 
 def normalize(x, y):
+    """ Takes a vector in (x, y) form and returns a new coordinate pair
+        representing a vector with length 1. """
+
     magnitude = math.sqrt(x**2 + y**2)  # By Pythagorean theorem
     if magnitude == 0:  # Don't want to divide by 0
         return (0, 0)
