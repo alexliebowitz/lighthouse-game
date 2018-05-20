@@ -3,6 +3,7 @@ import pygame
 from sprites.gamesprite import GameSprite
 from constants import *
 
+
 class Screen(GameSprite):
     BACKDROP_COLOR = None
     BACKDROP_ALPHA = 60
@@ -35,6 +36,7 @@ class Screen(GameSprite):
         self.image.blit(self._content, (0, 0))
         self._mainsurf.blit(self.image, (0, 0))
 
+
 class WinScreen(Screen):
     BACKDROP_COLOR = (255, 255, 255)
     BACKDROP_ALPHA = 255
@@ -47,6 +49,7 @@ class WinScreen(Screen):
         self._content.blit(textsurf, textrect)
         super().draw()
 
+
 class LoseScreen(Screen):
     BACKDROP_COLOR = (150, 0, 0)
     CONTENT_COLOR = (230, 230, 230)
@@ -57,6 +60,7 @@ class LoseScreen(Screen):
 
         self._content.blit(textsurf, textrect)
         super().draw()
+
 
 class PauseScreen(Screen):
     BACKDROP_COLOR = (252, 254, 234)
@@ -69,6 +73,7 @@ class PauseScreen(Screen):
         self._content.blit(textsurf, textrect)
         super().draw()
 
+
 class MenuScreen(Screen):
     BACKDROP_COLOR = (1, 1, 1)
     BACKDROP_ALPHA = 255
@@ -79,8 +84,6 @@ class MenuScreen(Screen):
     _r = None
     _g = None
     _b = None
-
-
 
     def __init__(self):
         super().__init__()

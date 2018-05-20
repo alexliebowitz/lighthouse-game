@@ -114,7 +114,6 @@ class Rocket(GameSprite):
         self.incrx(self._speedx)
         self.incry(self._speedy)
 
-
         if self._speedx != 0 or self._speedy != 0:
             # We're moving, so we need to update self._angle to match
             # the direction we're moving.
@@ -126,7 +125,6 @@ class Rocket(GameSprite):
             # the sign to get a regular angle.
             self._angle = 0 - (raw_angle + 90)
 
-
         rotatedimage = pygame.transform.rotate(self.image, self._angle)
 
         # When we called pygame.transform.rotate(), that gave us a new surface
@@ -134,16 +132,13 @@ class Rocket(GameSprite):
         # the image with self.rect, it would be slightly off center. Instead we
         # create a temporary rectangle object from the rotated image, and
         # re-center it on the center of the rocket.
-
         draw_rect = rotatedimage.get_rect()
         draw_rect.centerx = self.rect.centerx
         draw_rect.centery = self.rect.centery
 
-
         # Now draw_rect contains the correct position info, so we
         # blit the rotated image at that position.
         self._mainsurf.blit(rotatedimage, draw_rect)
-
 
         # Add a new sprite at the beginning of the trail
         if self._frames % ROCKET_TRAIL_SPACING == 0:
@@ -239,6 +234,7 @@ class BossDevil(Devil):
             fireball.draw()
 
         self._mainsurf.blit(self.image, self.rect)
+
 
 class Fireball(GameSprite):
     _bearingx = None

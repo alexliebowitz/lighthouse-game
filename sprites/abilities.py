@@ -113,12 +113,15 @@ class Bomb(GameSprite):
             self._circlesurf.set_alpha(self._get_alpha())
 
             # Set the radius based on the number of frames since 100 (so it grows every frame)
-            pygame.draw.circle(self._circlesurf, color, (self.rect.centerx, self.rect.centery), self.radius)
+            pygame.draw.circle(self._circlesurf, color,
+                               (self.rect.centerx, self.rect.centery),
+                               self.radius)
             self._mainsurf.blit(self._circlesurf, (0, 0))
         else:
             # We are past the radius, so we do not draw, and we set this.done to True
             # so the main game loop knows it can remove this from the list of bombs.
             self.done = True
+
 
 class TimeBomb(Bomb):
     GROW_RATE = 30

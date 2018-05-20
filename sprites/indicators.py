@@ -3,6 +3,7 @@ import pygame
 from constants import *
 from sprites.gamesprite import GameSprite
 
+
 class LevelIndicator(GameSprite):
     _level = None
     _font = None
@@ -19,6 +20,7 @@ class LevelIndicator(GameSprite):
     def draw(self):
         textsurf = self._font.render(str(self._level), True, MAIN_COLOR)
         self._mainsurf.blit(textsurf, (WIDTH - 50, 50))
+
 
 class BoostBar(GameSprite):
     _boostleft = None
