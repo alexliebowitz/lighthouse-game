@@ -6,6 +6,45 @@ from sprites.gamesprite import GameSprite
 from constants import *
 from utils import *
 
+class GhostSprite(GameSprite):
+    """ Simple class that allows us to display an image with alpha
+        transparency (i.e., faded out). Mainly useful for creating
+        trail effects. """
+
+    def __init__(self, image, coords):
+        super().__init__()
+
+        self.image = image
+        self.rect = pygame.rect.Rect(coords, image.get_size())
+
+    def draw(self, alpha):
+        # Pygame can't blit images to the screen with a "faded" look (transparent)
+        # if the image itself already contains transparency. So to get the "fade"
+        # effect we want, we need to blit the image to a temporary surface, then
+        # blit the temporary surface to the screen.
+        # (Solution from here: https://stackoverflow.com/a/12880257)
+
+        # Make temporary surface. Like all surfaces, it will be filled with
+        # black to start with.
+        tempsurf = pygame.Surface((self.rect.width, self.rect.height))
+
+        # Set color key to black on the temporary surface, so that black shows
+        # up as transparent. Note: because we only have one color that is
+        # transparent (black), we can't get gradual/partial alpha in the
+        # image itself. So around the edges it will look "dirty" (no
+        # anti-aliasing). But because the image is faded anyway, it's not really
+        # noticeable.
+        tempsurf.set_colorkey((0, 0, 0))
+
+        # Blit the image onto the temporary surface
+        tempsurf.blit(self.image, (0, 0))
+
+        # Set the transparency on the temporary surface
+        tempsurf.set_alpha(alpha)
+
+        # Blit the temporary surface to the screen
+        self._mainsurf.blit(tempsurf, self.rect)
+
 class Rocket(GameSprite):
     _frames = None
     _trail = None
@@ -22,11 +61,16 @@ class Rocket(GameSprite):
         self.image = pygame.image.load("images/rocket.png")
 
         self._frames = 0
-        self._trail = []
         self._speedincr = DEFAULT_SPEED_INCR
         self.boostmode = False
         self._speedx = 0
         self._speedy = 0
+
+        # self._trail is used to draw the trail that goes behind the rocket.
+        # It's a list containing sprites that are snapshots of the rocket's
+        # position and apperance at that moment in time.
+
+        self._trail = []
 
         self._angle = 0  # Start off pointing upward
 
@@ -60,14 +104,6 @@ class Rocket(GameSprite):
     def decrspeedy(self):
         self._speedy -= self._speedincr
 
-    def draw_trail_rocket(self, coords, alpha):
-        tempsurf = pygame.Surface((WIDTH, HEIGHT))
-        tempsurf.set_colorkey((0, 0, 0))
-        tempsurf.blit(self.image, (0, 0))
-        tempsurf.set_alpha(alpha)
-
-        self._mainsurf.blit(tempsurf, coords)
-
     def draw(self):
         self._frames += 1
 
@@ -75,13 +111,6 @@ class Rocket(GameSprite):
         self._speedy *= FRICTION
         self.incrx(self._speedx)
         self.incry(self._speedy)
-
-        # Compute new trail and blit it
-        if self._frames % ROCKET_TRAIL_SPACING == 0:
-            self._trail.insert(0, (self.rect.x, self.rect.y))
-
-        if len(self._trail) > ROCKET_MAX_TRAIL:
-            self._trail = self._trail[:-1]
 
 
         if self._speedx != 0 or self._speedy != 0:
@@ -98,12 +127,6 @@ class Rocket(GameSprite):
 
         rotatedimage = pygame.transform.rotate(self.image, self._angle)
 
-        alpha = ROCKET_TRAIL_START_ALPHA
-        for trailcoord in self._trail:
-            alpha *= ROCKET_TRAIL_FADE
-
-            self.draw_trail_rocket(trailcoord, alpha)
-
         # When we called pygame.transform.rotate(), that gave us a new surface
         # enlarged to contain the rotated image. This means if we tried to blit
         # the image with self.rect, it would be slightly off center. Instead we
@@ -114,9 +137,26 @@ class Rocket(GameSprite):
         draw_rect.centerx = self.rect.centerx
         draw_rect.centery = self.rect.centery
 
+
         # Now draw_rect contains the correct position info, so we
         # blit the rotated image at that position.
         self._mainsurf.blit(rotatedimage, draw_rect)
+
+
+        # Add a new sprite at the beginning of the trail
+        if self._frames % ROCKET_TRAIL_SPACING == 0:
+            self._trail.insert(0, GhostSprite(rotatedimage, (draw_rect.x, draw_rect.y)))
+
+        # If the trail is now too long, chop off one at the end
+        if len(self._trail) > ROCKET_MAX_TRAIL:
+            self._trail = self._trail[:-1]
+
+        # Draw trail
+        alpha = ROCKET_TRAIL_START_ALPHA
+        for trailsprite in self._trail:
+            alpha *= ROCKET_TRAIL_FADE
+
+            trailsprite.draw(alpha)
 
 
 class Devil(GameSprite):
