@@ -1,6 +1,6 @@
 import pygame
 
-from .gamesprite import GameSprite
+from sprites.gamesprite import GameSprite
 from constants import *
 
 class Screen(GameSprite):

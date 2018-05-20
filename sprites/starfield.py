@@ -1,8 +1,10 @@
-import pygame
 import random
 
-from .gamesprite import GameSprite
+import pygame
+
+from sprites.gamesprite import GameSprite
 from constants import *
+
 
 class StarField(GameSprite):
     def __init__(self):

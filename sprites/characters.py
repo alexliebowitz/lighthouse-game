@@ -1,10 +1,11 @@
-import pygame
 import random
 
-from sprites.gamesprite import GameSprite
+import pygame
 
 from constants import *
-from utils import *
+from sprites.gamesprite import GameSprite
+from utils import normalize
+
 
 class GhostSprite(GameSprite):
     """ Simple class that allows us to display an image with alpha
@@ -44,6 +45,7 @@ class GhostSprite(GameSprite):
 
         # Blit the temporary surface to the screen
         self._mainsurf.blit(tempsurf, self.rect)
+
 
 class Rocket(GameSprite):
     _frames = None

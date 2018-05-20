@@ -1,6 +1,9 @@
-import pygame
-import constants
 import math
+
+import pygame
+
+import constants
+
 
 class GameSprite(pygame.sprite.Sprite):
     _mainsurf = None

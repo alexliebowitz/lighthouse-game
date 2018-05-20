@@ -1,23 +1,21 @@
-import pygame
 import math
 import random
 
-from constants import *
-
+import pygame
 from pygame.locals import *
-from sprites.indicators import *
-from sprites.screens import *
-from sprites.gamesprite import *
-from sprites.items import BombPowerup, TimeBombPowerup, ShieldPowerup, Cookie
-from sprites.starfield import StarField
-from sprites.abilities import *
-from sprites.characters import *
-from utils import *
 
+from constants import *
+from sprites.abilities import Shield, Bomb, TimeBomb
+from sprites.characters import Rocket, Devil, BossDevil
+from sprites.indicators import LevelIndicator, BoostBar
+from sprites.items import BombPowerup, TimeBombPowerup, ShieldPowerup, Cookie
+from sprites.screens import WinScreen, LoseScreen, PauseScreen, MenuScreen
+from sprites.starfield import StarField
+from utils import randomdirection
 
 pygame.init()
 pygame.mixer.init()
- 
+
 mainfont = pygame.font.SysFont('Helvetica', 25)
 
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))

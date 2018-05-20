@@ -1,7 +1,7 @@
 import pygame
 
 from constants import *
-from .gamesprite import GameSprite
+from sprites.gamesprite import GameSprite
 
 class LevelIndicator(GameSprite):
     _level = None

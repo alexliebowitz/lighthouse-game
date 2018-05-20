@@ -1,7 +1,8 @@
 import pygame
 
-from .gamesprite import GameSprite
 from constants import *
+from sprites.gamesprite import GameSprite
+
 
 class Shield(GameSprite):
     _frames = None

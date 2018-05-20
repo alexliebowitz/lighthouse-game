@@ -1,5 +1,6 @@
-import random
 import math
+import random
+
 
 def randomdirection(maxdist=10):
     # Return a vector we can use to push an object in a random

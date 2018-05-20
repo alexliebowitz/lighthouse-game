@@ -1,8 +1,10 @@
-import pygame
 import random
-from constants import *
 
+import pygame
+
+from constants import *
 from sprites.gamesprite import GameSprite
+
 
 class Item(GameSprite):
     IMAGE_FILE = None
