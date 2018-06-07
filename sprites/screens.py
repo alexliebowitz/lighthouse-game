@@ -112,6 +112,7 @@ class MenuScreen(Screen):
         self._backdrop.fill((self._r, self._g, self._b))
 
         textsurf = self._font.render("WELCOME", True, self.CONTENT_COLOR)
-        self._content.blit(textsurf, (WIDTH / 2, 200))
+        textrect = textsurf.get_rect(center=self._mainsurf.get_rect().center)
 
+        self._content.blit(textsurf, textrect)
         super().draw()
