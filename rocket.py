@@ -133,7 +133,7 @@ while True:
         # Replenish boost counter
         if boostleft <= MAX_BOOST:
             boostleft += 0.25
-            boostbar.setboost(boostleft)
+    boostbar.setboost(boostleft)
 
     ### Update rocket position using the speed we just calculated
 
