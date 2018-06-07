@@ -2,7 +2,7 @@ import math
 import random
 
 
-def randomdirection(maxdist=10):
+def randomdirection(dist=1):
     # Return a vector we can use to push an object in a random
     # direction. For example, if we return (-5, -5), that means
     # push the object 5 pixels up and to the left.
@@ -24,9 +24,7 @@ def randomdirection(maxdist=10):
     if random.choice([True, False]):
         y *= -1
 
-    distance = random.randint(0, maxdist)
-
-    return (x * distance, y * distance)
+    return (x * dist, y * dist)
 
 
 def normalize(x, y):

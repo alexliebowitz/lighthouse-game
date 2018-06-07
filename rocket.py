@@ -173,10 +173,10 @@ while True:
         devilgroup.add(devil)
 
         if collidingdevil is not None:
-            dirx, diry = randomdirection()
+            dirx, diry = randomdirection(DEVIL_COLLIDE_PUSH_RADIUS)
 
-            devil.rect.x += dirx
-            devil.rect.y += diry
+            devil.incrx(dirx)
+            devil.incry(diry)
 
     if event.type == KEYDOWN and event.key == K_d:
         for bomb in bombs:
