@@ -70,7 +70,7 @@ class Rocket(GameSprite):
 
         # self._trail is used to draw the trail that goes behind the rocket.
         # It's a list containing sprites that are snapshots of the rocket's
-        # position and apperance at that moment in time.
+        # position and appearance at that moment in time.
 
         self._trail = []
 
