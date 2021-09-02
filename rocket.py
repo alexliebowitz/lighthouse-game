@@ -17,6 +17,11 @@ from utils import randomdirection
 pygame.init()
 pygame.mixer.init()
 
+# Pygame lets you create a Clock object which provides tools to control your
+# frame rate. (In our case, we use it to make sure that the game doesn't run
+# too fast.)
+clock = pygame.time.Clock()
+
 mainfont = pygame.font.SysFont('Helvetica', 25)
 
 mainsurf = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -340,5 +345,18 @@ while True:
 
     if shield is not None:
         shield.draw()
+
+    # We call the clock.tick() function on the clock object we got from
+    # Pygame, in order to make sure that this frame takes up the appropriate
+    # amount of time for our frame rate. For example, if our frame rate is 50
+    # frames per second, then each frame should take 0.02 seconds (1 / 50). If
+    # it only took 0.01 seconds to compute this frame, then Pygame will wait
+    # an extra 0.01 seconds to make sure it adds up to 0.02.
+    #
+    # If this frame took *longer* than the time we wanted, for example if the
+    # computer is being slow, then Pygame won't wait at all and (hopefully!)
+    # we'll get back up to speed later.
+
+    clock.tick(FRAMES_PER_SECOND)
 
     pygame.display.update()
