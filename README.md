@@ -1,4 +1,4 @@
-# LightHouse Game: Rocket Cookie Devil
+# LightHouse Game: Rocket Cookie Devil (Collaboration with Students)
 2D space shooter game from Intro to Programming class at [LightHouse](http://lighthouseholyoke.org/), a self-directed learning center for teens based in Holyoke, MA. All code is written collaboratively by me and the students.
 
 <a href="https://www.youtube.com/watch?v=dEU2zgjRHec">
